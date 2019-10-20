@@ -1,6 +1,7 @@
 *~
 parse-stl
 cmake_install.cmake
-Makefile
 CMakeFiles/
-CMakeCache.txt
+*.o
+myApp
+created_file.stl

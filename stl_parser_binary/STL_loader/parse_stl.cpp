@@ -8,6 +8,22 @@
 #include "tools.h"
 
 namespace stl {
+  /* ------------- TRIANGLE -------------*/
+
+  Vertex Triangle::getv(int i) const {
+    switch(i) {
+      case 1:
+        return v1;
+      case 2:
+        return v2;
+      case 3:
+        return v3;
+      default:
+        std::cout << "Error: in getv(): return normal" << std::endl;
+        return normal;
+    }
+
+  }
 
   /* ------------- STL_DATA -------------*/
 

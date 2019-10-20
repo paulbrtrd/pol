@@ -37,6 +37,7 @@ namespace stl {
     Vertex getv1() const { return v1; };
     Vertex getv2() const { return v2; };
     Vertex getv3() const { return v3; };
+    Vertex getv(int i) const;
     Vertex getnormal() const { return normal; };
   };
 
