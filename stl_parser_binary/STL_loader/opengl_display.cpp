@@ -1,19 +1,6 @@
 #include "opengl_display.h"
-#include "parse_stl.h"
 #include <vector>
 #include <iostream>
-// Fichiers d'en-têtes pour OpenGL et GLUT
-#ifdef __WINDOWS__
-#include <Windows.h>
-#endif
-
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/gl.h>
-#include <GL/glut.h>
-#endif
 
 // Quelques variables globales (c'est pas bien)
 GLfloat pointSize = 1.0f;
@@ -39,6 +26,8 @@ float camPosX = 0;
 float camPosY = 0;
 float camPosZ = 2;
 stl::Stl_data * ptr_mesh_to_display;
+
+
 // Definition de la fonction d'affichage
 GLvoid affichage(){
    // Effacement du frame buffer
@@ -51,8 +40,9 @@ GLvoid affichage(){
    
    // Animation du cube!
    glLoadIdentity();
-// Placement de la caméra
-   gluLookAt(camPosX, camPosY, camPosZ, 0, 0, 0, 0, 1, 0);
+
+   // Placement de la caméra
+   gluLookAt(camPosX, camPosY, camPosZ, camPosX, camPosY, 0, 0, 1, 0);
 
    glRotatef(angleY,1.0f,0.0f,0.0f);
    glRotatef(angleX,0.0f,1.0f,0.0f);
@@ -160,8 +150,7 @@ GLvoid releaseSpecialKey(int key, int x, int y) {
          camPosZ += step;
          somethingChanged = true;
          break;
-         
-         // On remet le delta strafe a 0
+
       case GLUT_KEY_RIGHT :
          camPosX += step;
          somethingChanged = true;
@@ -241,7 +230,7 @@ GLvoid redimensionner(int w, int h) {
    gluPerspective(focale, 4/3.0, near, far);
    
    // Placement de la caméra
-   gluLookAt(camPosX, camPosY, camPosZ, 0, 0, 0, 0, 1, 0);
+   //gluLookAt(camPosX, camPosY, camPosZ, 0, 0, 0, 0, 1, 0);
    
    // Retourne a la pile modelview
    glMatrixMode(GL_MODELVIEW);
