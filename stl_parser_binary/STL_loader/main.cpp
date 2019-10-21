@@ -4,7 +4,7 @@
 #include "parse_stl.h"
 #include "tools.h"
 #include "opengl_display.h"
-
+// MODIFICATION
 int main(int argc, char* argv[]) {
   std::string stl_file_name = "./Box1x1x1.stl";
 
