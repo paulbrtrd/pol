@@ -64,4 +64,8 @@ std::ostream& operator<<(std::ostream& out, const Triangle& t) {
   return out;
 }
 
+bool operator==(const Vertex  v1, const Vertex  v2) {
+	return ( (v1.getx() == v2.getx()) && (v1.gety() == v2.gety()) && (v1.getz() == v2.getz()) );
+}
+
 }

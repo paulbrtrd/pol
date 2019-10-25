@@ -16,4 +16,7 @@ std::ostream& operator<<(std::ostream& out, const stl::Vertex p);
 // Surcharge de l'opérateur << pour l'affichage des informations d'un triangle
 std::ostream& operator<<(std::ostream& out, const stl::Triangle& t);
 
+// Surcharge de == pour les vertex
+bool operator==(const Vertex v1, const Vertex v2);
+
 }

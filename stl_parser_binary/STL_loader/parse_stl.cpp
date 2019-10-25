@@ -9,18 +9,28 @@
 
 namespace stl {
   /* ------------- TRIANGLE -------------*/
+  Triangle::Triangle(Vertex * normalp, Vertex * v1p, Vertex * v2p, Vertex * v3p){
+      normal = normalp;
+	  v1 = v1p;
+	  v2 = v2p;
+	  v3 = v3p;bool simpleVertex(Vertex v);
+
+	  v1->add_connected_triangle(this);
+	  v2->add_connected_triangle(this);
+	  v3->add_connected_triangle(this);
+  }
 
   Vertex Triangle::getv(int i) const {
     switch(i) {
       case 1:
-        return v1;
+        return *v1;
       case 2:
-        return v2;
+        return *v2;
       case 3:
-        return v3;
+        return *v3;
       default:
         std::cout << "Error: in getv(): return normal" << std::endl;
-        return normal;
+        return *normal;
     }
 
   }
@@ -48,18 +58,45 @@ namespace stl {
       auto v1 = parse_vertex(stl_file);
       auto v2 = parse_vertex(stl_file);
       auto v3 = parse_vertex(stl_file);
+
+	  Vertex * ptr_normal = this->get_or_add_vertex(normal);
+	  Vertex * ptr_v1 = this->get_or_add_vertex(v1);
+	  Vertex * ptr_v2 = this->get_or_add_vertex(v2);
+	  Vertex * ptr_v3 = this->get_or_add_vertex(v3);
+
       //info.triangles.push_back(triangle(normal, v1, v2, v3));
-      this->addTriangle(Triangle(normal, v1, v2, v3));
-      
-      char dummy[2];
-      stl_file.read(dummy, 2);
+    this->addTriangle(Triangle(ptr_normal, ptr_v1, ptr_v2, ptr_v3));// add both the triangle and this triangle to the connected triangles vector of each vertex
+    this->addVertices(Vertex (ptr_v1->getx(),ptr_v1->gety(),ptr_v1->getz()));
+    this->addVertices(Vertex (ptr_v2->getx(),ptr_v2->gety(),ptr_v2->getz()));
+    this->addVertices(Vertex (ptr_v3->getx(),ptr_v3->gety(),ptr_v3->getz()));
+
+    char dummy[2];
+    stl_file.read(dummy, 2);
     }
   }
+
+  Vertex * Stl_data::get_or_add_vertex(Vertex & v) {
+	  for (Vertex & existing_v: vertices) {
+		  if (v == existing_v) {
+			  return &existing_v;
+		  }
+	  }
+	  vertices.push_back(v);
+	  return & vertices.back();
+  }
+
+  void Stl_data::addVertices(Vertex  vert) {
+    for (Vertex & existing_v: vertices)
+    {
+      if (vert == existing_v){return;}
+      vertices.push_back(vert);
+    }
+  };
 
   void Stl_data::create_stl() {
     // Open the file
     std::ofstream new_file("created_file.stl",std::ofstream::binary);
-    
+
     // Extract the list of triangles
     std::vector<stl::Triangle> triangles = this->gettriangles();
 
@@ -68,7 +105,7 @@ namespace stl {
     const char * name = this->getname().c_str();
     unsigned int n_triangles = triangles.size();
     const char * n = (const char *) &n_triangles;
-    
+
     // 80 premier octets: le nom
     new_file.write( name , 80);
 
@@ -107,6 +144,6 @@ namespace stl {
     new_file.close();
   }
 
+
+
 }
-
-

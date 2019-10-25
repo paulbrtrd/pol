@@ -4,7 +4,9 @@
 #include "parse_stl.h"
 #include "tools.h"
 #include "opengl_display.h"
-// MODIFICATION
+#include "ClassifyVertex.h"
+
+
 int main(int argc, char* argv[]) {
   std::string stl_file_name = "./Box1x1x1.stl";
 
@@ -25,12 +27,12 @@ int main(int argc, char* argv[]) {
   std::cout << "# triangles = " << triangles.size() << std::endl;
 
   info.create_stl();
-/*
-  for (auto t : triangles) {
+
+  /*for (auto t : triangles) {
     std::cout << t << std::endl;
-  }
-*/
-  // Display the mesh with openGL
+  }*/
+
+   //Display the mesh with openGL
   opengl_display(&info);
 
 }
