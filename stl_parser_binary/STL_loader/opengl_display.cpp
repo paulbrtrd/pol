@@ -52,7 +52,7 @@ GLvoid affichage(){
    //glEnable(GL_TEXTURE_2D);
 
    // Extraction des triangles
-   std::vector<stl::Triangle> triangles = ptr_mesh_to_display->gettriangles();
+   std::vector<stl::Triangle> triangles = *(ptr_mesh_to_display->gettriangles());
    // Dessin de chaque triangle
    stl::Vertex firstPoint = triangles.back().getv1();
    float cali_x, cali_y, cali_z;
