@@ -63,9 +63,9 @@ class Vertex {
     Stl_data(const std::string& stl_path);
     // Add the triangle to the triangle list
     void addTriangle(Triangle t) { triangles.push_back(t); } ;
-    void addVertices(Vertex  vert);
+    
 	  Vertex * get_or_add_vertex(Vertex & v);
-    std::vector<Triangle> gettriangles() const{ return triangles; };
+    std::vector<Triangle> * gettriangles() { return &triangles; };
     std::string getname() const { return name; };
 
     // Create binary stl file from triangle list
