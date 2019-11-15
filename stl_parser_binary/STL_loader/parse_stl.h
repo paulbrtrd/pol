@@ -56,7 +56,8 @@ class Vertex {
     std::string name;
     // Liste des triangles contenus dans le fichier
     std::vector<Triangle> triangles;
-	   std::vector<Vertex> vertices;
+    std::vector<Vertex> vertices;
+    std::vector<Vertex> normals;
 
   public:
     // Create Stl_data object containing all stl file data
@@ -65,7 +66,9 @@ class Vertex {
     void addTriangle(Triangle t) { triangles.push_back(t); } ;
     
 	  Vertex * get_or_add_vertex(Vertex & v);
+    Vertex * get_or_add_normal(Vertex & n);
     std::vector<Triangle> * gettriangles() { return &triangles; };
+    std::vector<Vertex> * getvertices() { return &vertices; };
     std::string getname() const { return name; };
 
     // Create binary stl file from triangle list

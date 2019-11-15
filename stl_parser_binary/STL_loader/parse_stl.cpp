@@ -10,7 +10,8 @@
 namespace stl {
   /* ------------- TRIANGLE -------------*/
   Triangle::Triangle(Vertex * normalp, Vertex * v1p, Vertex * v2p, Vertex * v3p){
-      normal = normalp;
+      
+    normal = normalp;
 	  v1 = v1p;
 	  v2 = v2p;
 	  v3 = v3p;
@@ -32,7 +33,6 @@ namespace stl {
         std::cout << "Error: in getv(): return normal" << std::endl;
         return *normal;
     }
-
   }
 
   /* ------------- STL_DATA -------------*/
@@ -56,19 +56,20 @@ namespace stl {
     std::cout << "NB triangles: " << num_triangles <<std::endl;
 
     for (unsigned int i = 0; i < num_triangles; i++) {
-      std::cout << "Etraction: " << 100*(i+1)/num_triangles << " %" <<std::endl;
+      std::cout << 100*i/num_triangles << "%" << std::endl;
       auto normal = parse_vertex(stl_file);
       auto v1 = parse_vertex(stl_file);
       auto v2 = parse_vertex(stl_file);
       auto v3 = parse_vertex(stl_file);
 
-  	  Vertex * ptr_normal = this->get_or_add_vertex(normal);
+      // Create or get the pointers to the normal and the vertices
+  	  Vertex * ptr_normal = this->get_or_add_normal(normal);
   	  Vertex * ptr_v1 = this->get_or_add_vertex(v1);
   	  Vertex * ptr_v2 = this->get_or_add_vertex(v2);
   	  Vertex * ptr_v3 = this->get_or_add_vertex(v3);
 
-        //info.triangles.push_back(triangle(normal, v1, v2, v3));
-      this->addTriangle(Triangle(ptr_normal, ptr_v1, ptr_v2, ptr_v3));// add both the triangle and this triangle to the connected triangles vector of each vertex
+      // Add the triangle to the list
+      this->addTriangle(Triangle(ptr_normal, ptr_v1, ptr_v2, ptr_v3));
 
       char dummy[2];
       stl_file.read(dummy, 2);
@@ -82,7 +83,17 @@ namespace stl {
 		  }
 	  }
 	  vertices.push_back(v);
-	  return & vertices.back();
+	  return &vertices.back();
+  }
+
+  Vertex * Stl_data::get_or_add_normal(Vertex & n) {
+    for (Vertex & existing_n: normals) {
+      if (n == existing_n) {
+        return &existing_n;
+      }
+    }
+    normals.push_back(n);
+    return &normals.back();
   }
 
   void Stl_data::create_stl() {
@@ -90,12 +101,12 @@ namespace stl {
     std::ofstream new_file("created_file.stl",std::ofstream::binary);
 
     // Extract the list of triangles
-    std::vector<stl::Triangle> *triangles = this->gettriangles();
+    std::vector<stl::Triangle> triangles = *(this->gettriangles());
 
     /* Les données à écrire doivent être des const char
     --> Conversion du name et de n_triangle en const char */
     const char * name = this->getname().c_str();
-    unsigned int n_triangles = triangles->size();
+    unsigned int n_triangles = triangles.size();
     const char * n = (const char *) &n_triangles;
 
     // 80 premier octets: le nom
@@ -112,7 +123,7 @@ namespace stl {
 
     int i = 0;
     // Écriture des données
-    for (Triangle t: (*triangles)) {
+    for (Triangle t: triangles) {
       Vertex normal = t.getnormal();
       vertex_to_buf(v_bin, normal);
       new_file.write(v_bin, 12);
