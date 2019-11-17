@@ -20,13 +20,14 @@ int windowH = 480;
 float focale = 65.0f;
 float near = 0.1f;
 float far = 100.0f;
+float cali_x, cali_y, cali_z;
 
 float step = 0.3;
+float x_bary=0, y_bary=0, z_bary=0;
 float camPosX = 0;
 float camPosY = 0;
 float camPosZ = 2;
-stl::Stl_data * ptr_mesh_to_display;
-
+std::vector<stl::Triangle> triangles_to_display;
 
 // Definition de la fonction d'affichage
 GLvoid affichage(){
@@ -46,21 +47,13 @@ GLvoid affichage(){
 
    glRotatef(angleY,1.0f,0.0f,0.0f);
    glRotatef(angleX,0.0f,1.0f,0.0f);
-   
 
-   //glBegin(GL_QUAD_STRIP);
-   //glEnable(GL_TEXTURE_2D);
 
-   // Extraction des triangles
-   std::vector<stl::Triangle> triangles = *(ptr_mesh_to_display->gettriangles());
+   cali_x = x_bary - camPosX;
+   cali_y = y_bary - camPosY;
+   cali_z = z_bary;
    // Dessin de chaque triangle
-   stl::Vertex firstPoint = triangles.back().getv1();
-   float cali_x, cali_y, cali_z;
-   cali_x = firstPoint.getx() - camPosX;
-   cali_y = firstPoint.gety() - camPosY;
-   cali_z = firstPoint.gety();
-
-   for (stl::Triangle t : triangles) {
+   for (stl::Triangle t : triangles_to_display) {
       glBegin(GL_TRIANGLES);
       stl::Vertex normal = t.getnormal();
       glNormal3f(normal.getx(), normal.gety(), normal.getz());
@@ -70,16 +63,6 @@ GLvoid affichage(){
       }
       glEnd();
    }
-
-   //glEnd();
-   
-   // A vous de mettre en commentaire la boucle ci-dessus
-   // et de mettre en place les 6 glBegin(GL_QUADS) permettant
-   // de dessiner les 6 faces du cube
-   
-   
-   
-
    glFlush();
    glutSwapBuffers();
 }
@@ -170,7 +153,6 @@ GLvoid releaseSpecialKey(int key, int x, int y) {
 // Fonction de rappel de la souris
 GLvoid souris(int bouton, int etat, int x, int y){
    // Test pour voir si le bouton gauche de la souris est appuyé
-   //TODO
 	if (bouton == GLUT_LEFT_BUTTON) {
 		if (etat == GLUT_DOWN) {
 			boutonClick = true;
@@ -218,11 +200,6 @@ GLvoid redimensionner(int w, int h) {
    
    // Resetting matrix
    glLoadIdentity();
-   
-   // Viewport
-   // // TODO Essayez de modifier l'appel à glViewport
-   // en changeant les parametre d'appel a la fonction mais
-   // tout en obtenant le meme resultat
    glViewport(0, 0, windowW, windowH);
    
    // Mise en place de la perspective
@@ -243,10 +220,24 @@ void init_opengl(int argc, char *argv[])
 
 void opengl_display(stl::Stl_data * ptr_mesh)
 {
-   // Update the mesh reference
-   ptr_mesh_to_display = ptr_mesh;
-   // Initialisation de GLUT
-   //glutInit(&argc, argv);
+   // Update the mesh triangles to display
+   triangles_to_display = *(ptr_mesh->gettriangles());
+
+   std::vector<stl::Vertex> vertices = *(ptr_mesh->getvertices());
+   // Compute barycenter of the object
+   x_bary=0;
+   y_bary=0;
+   z_bary=0;
+   for(stl::Vertex & v : vertices) 
+   {
+      x_bary += v.getx();
+      y_bary += v.gety();
+      z_bary += v.getz();
+   }
+   x_bary/=vertices.size();
+   y_bary/=vertices.size();
+   z_bary/=vertices.size();
+
    // Choix du mode d'affichage (ici RVB)
    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH);
    // Position initiale de la fenetre GLUT

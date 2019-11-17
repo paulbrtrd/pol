@@ -58,10 +58,14 @@ namespace stl{
 
   std::ostream& operator<<(std::ostream& out, const Triangle& t) {
     out << "---- TRIANGLE ----" << std::endl;
-    out << t.getnormal() << std::endl;
-    out << t.getv1() << std::endl;
-    out << t.getv2() << std::endl;
-    out << t.getv3() << std::endl;
+    Vertex normal = t.getnormal();
+    Vertex v1 = t.getv1();
+    Vertex v2 = t.getv2();
+    Vertex v3 = t.getv3();
+    out << normal << std::endl;
+    out << v1 << std::endl;
+    out << v2 << std::endl;
+    out << v3 << std::endl;
     return out;
   }
 
