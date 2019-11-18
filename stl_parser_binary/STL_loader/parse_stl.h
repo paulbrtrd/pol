@@ -31,6 +31,7 @@ class Vertex {
     float getx() const { return x; };
     float gety() const { return y; };
     float getz() const { return z; };
+    Stl_data* getdata(){ return data;};
     /* Add the index of the triangle to the list */
 	  void add_connected_triangle(int index) { connected_triangles.push_back(index); };
     /* Return the list of triangle indexes */
@@ -59,6 +60,8 @@ class Vertex {
     int getv2_i() const { return v2_i; };
     int getv3_i() const { return v3_i; };
     int getnormal_i() const { return normal_i; };
+
+    Stl_data* getdata(){return data;};
 
     /* Return a COPY of the vertex or normal */
     Vertex getv1() const;

@@ -44,7 +44,8 @@ int main(int argc, char* argv[]) {
                   "6. Créer un fichier stl à partir des infos chargées\n" <<
                   "0. Quitter" << std::endl;
     std::cin >> choice;
-    switch(choice) 
+    int c=0;
+    switch(choice)
     {
       case '1':
         std::cout << "Header = " << info.getname() << std::endl;
@@ -54,19 +55,26 @@ int main(int argc, char* argv[]) {
       case '2':
         std::cout << "\nListe des vertices:\n";
         for (stl::Vertex v : *vertices) {
+          if (simpleVertex(v)){
+            std::cout<< "this vertex is simple "<<std::endl;
+          }
           std::cout << v << std::endl;
+
         }
-        break;        
+        break;
       case '3':
         std::cout << "\nListe des normales:\n";
         for (stl::Vertex n : *normals) {
           std::cout << n << std::endl;
+
         }
         break;
       case '4':
         std::cout << "\nListe des triangles:\n";
         for (stl::Triangle t : triangles) {
           std::cout << t << std::endl;
+          c = (t.getv1_i());
+          std::cout<<c<<std::endl;
         }
         break;
       case '5':
@@ -86,8 +94,7 @@ int main(int argc, char* argv[]) {
       default:
         std::cout << "Cette commande n'est pas disponible" << std::endl;
     }
-    
+
   }
 
 }
-

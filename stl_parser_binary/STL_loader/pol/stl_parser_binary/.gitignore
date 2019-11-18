@@ -1,0 +1,7 @@
+*~
+parse-stl
+cmake_install.cmake
+CMakeFiles/
+*.o
+myApp
+created_file.stl

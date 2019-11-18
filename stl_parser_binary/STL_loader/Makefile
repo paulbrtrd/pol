@@ -1,5 +1,5 @@
-myApp: main.o parse_stl.o tools.o opengl_display.o
-	g++ -o myApp main.o parse_stl.o tools.o opengl_display.o -lglut -lGLU -lGL
+myApp: main.o parse_stl.o tools.o opengl_display.o ClassifyVertex.o
+	g++ -o myApp main.o parse_stl.o tools.o opengl_display.o ClassifyVertex.o -lglut -lGLU -lGL
 
 main.o: main.cpp
 	g++ -c main.cpp
