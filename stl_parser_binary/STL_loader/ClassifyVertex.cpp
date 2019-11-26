@@ -77,7 +77,7 @@ float distance_to_plane(stl::Vertex v1, stl::Vertex v2,stl::Vertex v3,stl::Verte
   float dist;
   std::vector<int> plane;
   plane = equation_plane(v1, v2, v3);
-  float 
+
 
 
 //// a completer
