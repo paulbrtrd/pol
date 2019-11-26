@@ -1,9 +1,6 @@
-DEST=Build
 
 all: end
 
-create_dir: 
-	@if [ ! -e Build ];  then mkdir Build && echo "Build folder created"; fi
 
 myApp: main.o parse_stl.o tools.o opengl_display.o ClassifyVertex.o
 	@if [ -e myApp ];  then rm myApp; fi
@@ -30,7 +27,8 @@ opengl_display.o: opengl_display.cpp opengl_display.h
 	@g++ -c opengl_display.cpp
 	@echo "opengl_display.o generated"
 
-end: myApp create_dir
-	@rm Build/*
+end: myApp
+	@if [ -e Build ];  then rm -r Build; fi
+	@mkdir Build
 	@mv *.o Build/
 	@echo "Files moved to Build/"
