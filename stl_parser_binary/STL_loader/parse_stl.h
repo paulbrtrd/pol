@@ -88,6 +88,7 @@ class Vertex {
   public:
     /* Extract triangles, vertices, normals from the file */
     Stl_data(const std::string& stl_path);
+    Stl_data() {};
     /* Add the triangle to the triangle list */
     void addTriangle(Triangle t) { triangles.push_back(t); } ;
     /* Return the index of the vertex in the vertices list if it exists,
@@ -97,6 +98,7 @@ class Vertex {
        Add the normal and return its index else */
     int get_or_add_normal(Vertex & n, int current_triangle);
 
+    void setname(std::string _name) { name = _name; } ;
     /* Getters on the lists of triangles, normals and vertices */
     std::vector<Triangle> * gettriangles() { return &triangles; };
     std::vector<Vertex> * getvertices() { return &vertices; };
@@ -106,6 +108,9 @@ class Vertex {
 
     /* Create binary stl file from triangle list */
     void create_stl();
+
+    /* Return a Stl_data with reducted mesh */
+    Stl_data * reducted_mesh();
   };
 }
 

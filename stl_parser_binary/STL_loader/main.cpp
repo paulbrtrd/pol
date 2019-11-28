@@ -27,12 +27,13 @@ int main(int argc, char* argv[]) {
   bool open_gl_initiated = false;
 
   // Extraction des données depuis le fichier stl
-  stl::Stl_data info(stl_file_name);
+  stl::Stl_data * info_ptr = new stl::Stl_data(stl_file_name);
+  stl::Stl_data * new_info_ptr;
   char choice = 'a';
 
-  std::vector<stl::Triangle> triangles = *(info.gettriangles());
-  std::vector<stl::Vertex> * vertices = info.getvertices();
-  std::vector<stl::Vertex> * normals = info.getnormals();
+  std::vector<stl::Triangle> triangles = *(info_ptr->gettriangles());
+  std::vector<stl::Vertex> * vertices = info_ptr->getvertices();
+  std::vector<stl::Vertex> * normals = info_ptr->getnormals();
   // Boucle UI
   while(true) {
     std::cout << "Que voulez-vous faire?\n" <<
@@ -42,13 +43,14 @@ int main(int argc, char* argv[]) {
                   "4. Afficher la liste des triangles du fichier\n" <<
                   "5. Afficher le fichier chargé avec openGL\n" <<
                   "6. Créer un fichier stl à partir des infos chargées\n" <<
+                  "7. Appliquer l'algorithme\n" <<
                   "0. Quitter" << std::endl;
     std::cin >> choice;
     int c=0;
     switch(choice)
     {
       case '1':
-        std::cout << "Header = " << info.getname() << std::endl;
+        std::cout << "Header = " << info_ptr->getname() << std::endl;
         std::cout << "Nombre de triangles = " << triangles.size() << std::endl;
         std::cout << "Nombre de vertices = " << vertices->size() << std::endl;
         break;
@@ -83,12 +85,23 @@ int main(int argc, char* argv[]) {
           init_opengl(argc, argv);
           open_gl_initiated = true;
         }
-        opengl_display(&info);
+        opengl_display(info_ptr);
         break;
       case '6':
-        info.create_stl();
+        info_ptr->create_stl();
         std::cout << "File created: created_file.stl" << std::endl;
         break;
+      case '7':
+        // application de la réduction (création d'un nouveau Stl_data)
+        new_info_ptr = info_ptr->reducted_mesh();
+        // Suppression de l'ancien Stl_data
+        delete info_ptr;
+        info_ptr = new_info_ptr;
+        triangles = *(info_ptr->gettriangles());
+        vertices = info_ptr->getvertices();
+        normals = info_ptr->getnormals();
+        break;
+
       case '0':
         return 0;
       default:
