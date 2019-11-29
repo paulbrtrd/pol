@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <streambuf>
-
+#include <algorithm>
 #include "parse_stl.h"
 #include "tools.h"
 
@@ -14,7 +14,6 @@ namespace stl {
 
 /* Constructors */
   Triangle::Triangle(int normalp, int v1p, int v2p, int v3p, Stl_data * datap){
-      
     normal_i = normalp;
 	  v1_i = v1p;
 	  v2_i = v2p;
@@ -32,20 +31,20 @@ namespace stl {
 
 /* Getters */
   Vertex Triangle::getv1() const
-  { 
-    return (data->getvertices())->at(v1_i); 
+  {
+    return (data->getvertices())->at(v1_i);
   }
 
   Vertex Triangle::getv2() const
-  { 
-    return (data->getvertices())->at(v2_i); 
+  {
+    return (data->getvertices())->at(v2_i);
   }
   Vertex Triangle::getv3() const
-  { 
-    return (data->getvertices())->at(v3_i); 
+  {
+    return (data->getvertices())->at(v3_i);
   }
   Vertex Triangle::getnormal() const
-  { 
+  {
     return (data->getnormals())->at(normal_i);
   }
 
@@ -145,7 +144,7 @@ namespace stl {
   void Stl_data::create_stl() {
     // Open the file
     std::ofstream new_file("created_file.stl",std::ofstream::binary);
-    
+
     /* Les données à écrire doivent être des const char
     --> Conversion du name et de n_triangle en const char */
     const char * name_bin = name.c_str();
@@ -201,6 +200,54 @@ namespace stl {
     new_file.close();
   }
 
+  Stl_data * Stl_data::reducted_mesh() {
 
+    // List of triangles to keep
+    std::vector<int> triangles_to_keep;
+    for(int j=0; j<triangles.size();j++) {
+      triangles_to_keep.push_back(j);
+    }
+
+    for(int i=0;i<vertices.size();i++) {
+      // Un vertex sur 5 est supprimé
+      if (i%5==0) {
+        // Tous les triangles associés à ce vertex sont supprimé
+        std::vector<int> triangles_to_delete = vertices.at(i).get_connected_triangle();
+        for(int & t: triangles_to_delete) {
+          // Chaque triangle est donc retiré de triangles_to_keep, si il y est encore
+          std::vector<int>::iterator it = std::find(triangles_to_keep.begin(), triangles_to_keep.end(), t);
+          if (it != triangles_to_keep.end()) {
+            triangles_to_keep.erase(it);
+          }
+        }
+      }
+    }
+
+    // Création du nouveau Stl_data
+    Stl_data *result = new Stl_data;
+    result->setname(name);
+    int current_triangle = 0;
+
+    // Pour chaque triangle que l'on veut conserver
+    for (int & i:triangles_to_keep) {
+      Triangle t = triangles.at(i);
+      Vertex normal = t.getnormal();
+      Vertex v1 = t.getv1();
+      Vertex v2 = t.getv2();
+      Vertex v3 = t.getv3();
+
+      // Create or get the index to the normal and the vertices
+  	  int i_normal = result->get_or_add_normal(normal, current_triangle);
+  	  int i_v1 = result->get_or_add_vertex(v1, current_triangle);
+  	  int i_v2 = result->get_or_add_vertex(v2, current_triangle);
+  	  int i_v3 = result->get_or_add_vertex(v3, current_triangle);
+
+      // Add the triangle to the list
+      result->addTriangle(Triangle(i_normal, i_v1, i_v2, i_v3, result));
+    }
+
+    return result;
+
+  }
 
 }

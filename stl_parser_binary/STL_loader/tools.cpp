@@ -52,7 +52,7 @@ namespace stl{
 
 
   std::ostream& operator<<(std::ostream& out, const Vertex p) {
-    out << "(" << p.getx() << ", " << p.gety() << ", " << p.getz() << ")" << std::endl;
+    out << "(" << p.getx() << ", " << p.gety() << ", " << p.getz() << ")";
     return out;
   }
 
