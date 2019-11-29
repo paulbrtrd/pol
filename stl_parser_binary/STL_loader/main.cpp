@@ -58,7 +58,9 @@ int main(int argc, char* argv[]) {
           if (simpleVertex(v)){
             std::cout<< "this vertex is simple "<<std::endl;
           }
+          vertex_critirea (v,0.1);
           std::cout << v << std::endl;
+
 
         }
         break;

@@ -13,3 +13,7 @@ bool cornerVertex(stl::Vertex v);
 //criteria for approving the deletion of the vertex or not
 std::vector <int> equation_plane(stl::Vertex v1, stl::Vertex v2,stl::Vertex v3);
 float distance_to_plane(stl::Vertex v1, stl::Vertex v2,stl::Vertex v3,stl::Vertex v);
+
+std::vector <int> list_connected_vertices(stl::Vertex v);
+
+bool vertex_critirea(stl::Vertex v, float d);
