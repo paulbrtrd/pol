@@ -73,4 +73,8 @@ namespace stl{
   	return ( (v1.getx() == v2.getx()) && (v1.gety() == v2.gety()) && (v1.getz() == v2.getz()) );
   }
 
+  bool operator==(const Triangle  t1, const Triangle  t2) {
+  	return ( (t1.getv1_i() == t2.getv1_i()) && (t1.getv2_i() == t2.getv2_i()) && (t1.getv3_i() == t2.getv3_i()) && (t1.getnormal_i() == t2.getnormal_i()) );
+  }
+
 }

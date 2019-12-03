@@ -18,5 +18,10 @@ std::ostream& operator<<(std::ostream& out, const stl::Triangle& t);
 
 // Surcharge de == pour les vertex
 bool operator==(const Vertex v1, const Vertex v2);
-
+/*
+ * Surcharge de == pour les triangles.
+ * Le test est effectué seulement sur l'indice des vertices.
+ * L'égalité du data relié au triangle n'est pas testée.
+*/
+bool operator==(const Triangle  t1, const Triangle  t2);
 }
