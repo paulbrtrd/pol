@@ -6,8 +6,21 @@
 #include <algorithm>
 #include "parse_stl.h"
 #include "tools.h"
-
+#include <cmath>
 namespace stl {
+
+
+  /* -------------------------------------*/
+ /* -------------- VERTEX ---------------*/
+/* -------------------------------------*/
+  void Vertex::normalize() {
+    float norm = std::sqrt(x*x + y*y + z*z);
+    x/=norm;
+    y/=norm;
+    z/=norm;
+  }
+
+
    /* -------------------------------------*/
   /* ------------- TRIANGLE --------------*/
  /* -------------------------------------*/
@@ -48,6 +61,19 @@ namespace stl {
     return (data->getnormals())->at(normal_i);
   }
 
+  int Triangle::getv_i(int i) const {
+    switch(i) {
+      case 1:
+        return v1_i;
+      case 2:
+        return v2_i;
+      case 3:
+        return v3_i;
+      default:
+        std::cout << "Error: in getv(): return normal" << std::endl;
+        return normal_i;
+    }
+  }
   Vertex Triangle::getv(int i) const {
     switch(i) {
       case 1:
@@ -61,6 +87,39 @@ namespace stl {
         return this->getnormal();
     }
   }
+
+  Vertex Triangle::getOrientation() {
+    Vertex A = this->getv1();
+    Vertex B = this->getv2();
+    Vertex C = this->getv3();
+
+    Vertex AB = A.vectorTo(B);
+    Vertex AC = A.vectorTo(C);
+
+    Vertex orientation = AB.crossProduct(AC);
+    orientation.normalize();
+    return orientation;
+  }
+  void Triangle::getLastVertices(int first_point, int * A, int * B) {
+    if (v1_i == first_point) {
+      *A = v2_i;
+      *B = v3_i;
+      return;
+    }
+    if (v2_i == first_point) {
+      *A = v1_i;
+      *B = v3_i;
+      return;
+    }
+    if (v3_i == first_point) {
+      *A = v1_i;
+      *B = v2_i;
+      return;
+    }
+    *A = -1;
+    *B = -1;
+  }
+
 
    /* -------------------------------------*/
   /* ------------- STL_DATA --------------*/
