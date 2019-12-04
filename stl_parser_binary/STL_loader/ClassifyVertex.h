@@ -1,6 +1,5 @@
-
-#include "parse_stl.h"
-#include "tools.h"
+#pragma once
+#include "Structures/vertex.h"
 
 
 //classify vertex

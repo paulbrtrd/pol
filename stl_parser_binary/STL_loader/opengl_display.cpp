@@ -1,4 +1,7 @@
 #include "opengl_display.h"
+#include "Structures/vertex.h"
+#include "Structures/triangle.h"
+
 #include <vector>
 #include <iostream>
 
@@ -33,12 +36,12 @@ std::vector<stl::Triangle> triangles_to_display;
 GLvoid affichage(){
    // Effacement du frame buffer
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   
+
    // Suppression du Z-buffer
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
    glMatrixMode(GL_MODELVIEW);
-   
+
    // Animation du cube!
    glLoadIdentity();
 
@@ -69,7 +72,7 @@ GLvoid affichage(){
 
 // Definition de la fonction gerant les interruptions clavier
 GLvoid clavier(unsigned char touche, int x, int y) {
-   
+
    // Suivant les touches pressees, nous aurons un comportement different de l'application
    // ESCAPE ou 'q' : fermera l'application
    // 'p' : affichage du carre plein
@@ -85,7 +88,7 @@ GLvoid clavier(unsigned char touche, int x, int y) {
       case 's' : // sommets du carre
          glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
          break;
-         
+
          // Gestion du tampon de profondeur
       case 'd' :
          // TODO : activer le test du tampon de profondeur
@@ -95,7 +98,7 @@ GLvoid clavier(unsigned char touche, int x, int y) {
          //TODO : desactiver le test du tampon de profondeur
          glutPostRedisplay();
          break;
-         
+
       case '+':
          // Augmenter la taille des sommets affiches
          pointSize+=1.0f;
@@ -108,14 +111,14 @@ GLvoid clavier(unsigned char touche, int x, int y) {
             pointSize = 1.0f;
          glPointSize(pointSize);
          break;
-         
-         
+
+
       case 'q' : // quitter
       case 27 :
          exit(0);
          break;
    }
-   
+
    // Demande a GLUT de reafficher la scene
    glutPostRedisplay();
 }
@@ -142,7 +145,7 @@ GLvoid releaseSpecialKey(int key, int x, int y) {
          camPosX -= step;
          somethingChanged = true;
          break;
-         
+
          break;
    }
    // Demande a GLUT de reafficher la scene
@@ -177,8 +180,8 @@ GLvoid deplacementSouris(int x, int y) {
 		angleX = deltaX + x - oldX;
 		angleY = deltaY + y - oldY;
 	}
-   
-   
+
+
    // Appeler le re-affichage de la scene OpenGL
    glutPostRedisplay();
 }
@@ -191,24 +194,24 @@ GLvoid redimensionner(int w, int h) {
    // eviter une division par 0
    if(windowH==0)
       windowH = 1;
-   
+
    float ratio = (float)windowW / (float)windowH;
    //cout << "Ratio : " << ratio << endl;
-   
+
    // Projection
    glMatrixMode(GL_PROJECTION);
-   
+
    // Resetting matrix
    glLoadIdentity();
    glViewport(0, 0, windowW, windowH);
-   
+
    // Mise en place de la perspective
    // TODO : peut-on changerle ratio ici pour un meilleur resultat ?
    gluPerspective(focale, 4/3.0, near, far);
-   
+
    // Placement de la caméra
    //gluLookAt(camPosX, camPosY, camPosZ, 0, 0, 0, 0, 1, 0);
-   
+
    // Retourne a la pile modelview
    glMatrixMode(GL_MODELVIEW);
 }
@@ -228,7 +231,7 @@ void opengl_display(stl::Stl_data * ptr_mesh)
    x_bary=0;
    y_bary=0;
    z_bary=0;
-   for(stl::Vertex & v : vertices) 
+   for(stl::Vertex & v : vertices)
    {
       x_bary += v.getx();
       y_bary += v.gety();
@@ -246,13 +249,13 @@ void opengl_display(stl::Stl_data * ptr_mesh)
    glutInitWindowSize(windowW, windowH);
    // Creation de la fenetre GLUT
    glutCreateWindow("Mesh");
-   
+
    // Définition de la couleur d'effacement du framebuffer
    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-   
+
    // Activation du Z-buffer
    glEnable(GL_DEPTH_TEST);
-  
+
    // Définition des fonctions de callbacks
    glutDisplayFunc(affichage);
    glutKeyboardFunc(clavier);
@@ -261,8 +264,8 @@ void opengl_display(stl::Stl_data * ptr_mesh)
    glutMotionFunc(deplacementSouris);
    glutReshapeFunc(redimensionner);
    glutSpecialUpFunc(releaseSpecialKey);
-   
+
    // Lancement de la boucle infinie GLUT
    glutMainLoop();
-   
+
 }
