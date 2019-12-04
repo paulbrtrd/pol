@@ -2,24 +2,32 @@
 all: end
 
 
-myApp: main.o parse_stl.o tools.o opengl_display.o ClassifyVertex.o
+myApp: main.o stl_data.o triangle.o vertex.o tools.o opengl_display.o ClassifyVertex.o
 	@if [ -e myApp ];  then rm myApp; fi
-	@g++ -o myApp main.o parse_stl.o tools.o opengl_display.o ClassifyVertex.o -lglut -lGLU -lGL
+	@g++ -o myApp main.o stl_data.o triangle.o vertex.o tools.o opengl_display.o ClassifyVertex.o -lglut -lGLU -lGL
 	@echo "myApp generated"
 
 main.o: main.cpp
 	@g++ -c main.cpp
 	@echo "main.o generated"
 
-parse_stl.o: parse_stl.cpp parse_stl.h
-	@g++ -c parse_stl.cpp
+stl_data.o: Structures/stl_data.cpp Structures/stl_data.h Structures/triangle.h Structures/vertex.h
+	@g++ -c Structures/stl_data.cpp
 	@echo "parse_stl.o generated"
 
-tools.o: tools.cpp tools.h
-	@g++ -c tools.cpp
+triangle.o: Structures/triangle.cpp Structures/triangle.h Structures/vertex.h Structures/stl_data.h
+	@g++ -c Structures/triangle.cpp
+	@echo "triangle.o generated"
+
+vertex.o: Structures/vertex.cpp Structures/vertex.h Structures/stl_data.h
+	@g++ -c Structures/vertex.cpp
+	@echo "vertex.o generated"
+
+tools.o: Structures/tools.cpp Structures/tools.h Structures/vertex.h
+	@g++ -c Structures/tools.cpp
 	@echo "tools.o generated"
 
-ClassifyVertex.o: ClassifyVertex.cpp ClassifyVertex.h
+ClassifyVertex.o: ClassifyVertex.cpp ClassifyVertex.h Structures/vertex.h
 	@g++ -c ClassifyVertex.cpp
 	@echo "ClassifyVertex.o generated"
 

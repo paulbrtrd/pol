@@ -1,17 +1,17 @@
 #include <cassert>
 #include <iostream>
 
-#include "parse_stl.h"
-#include "tools.h"
-#include "opengl_display.h"
+#include "Structures/stl_data.h"
+#include "Structures/vertex.h"
+#include "Structures/triangle.h"
+
+//#include "tools.h"
 #include "ClassifyVertex.h"
 
 
 #include <cassert>
 #include <iostream>
 
-#include "parse_stl.h"
-#include "tools.h"
 #include "opengl_display.h"
 
 int main(int argc, char* argv[]) {

@@ -4,7 +4,7 @@
 #include <Windows.h>
 #endif
 
-#include "parse_stl.h"
+#include "Structures/stl_data.h"
 
 
 
