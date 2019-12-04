@@ -37,6 +37,18 @@ class Vertex {
     /* Return the list of triangle indexes */
     std::vector<int> get_connected_triangle() { return connected_triangles; }
 
+    Vertex crossProduct(Vertex & v) {
+      return (Vertex(y*v.getz() - z*v.gety(), z*v.getx() - x*v.getz(), x*v.gety() - y*v.getx()));
+    }
+    float dot(Vertex & v) {
+      return (x*v.getx() + y*v.gety() + z*v.getz());
+    }
+    void invert() { x=-x; y=-y; z=-z; };
+    void normalize();
+
+    Vertex vectorTo(Vertex & v) { return (Vertex(v.getx() - x, v.gety() - y, v.getz() - z)); };
+
+
 };
 
 /* ------------- TRIANGLE -------------*/
@@ -59,6 +71,7 @@ class Vertex {
     int getv1_i() const { return v1_i; };
     int getv2_i() const { return v2_i; };
     int getv3_i() const { return v3_i; };
+    int getv_i(int i) const;
     int getnormal_i() const { return normal_i; };
 
     Stl_data* getdata(){return data;};
@@ -69,8 +82,14 @@ class Vertex {
     Vertex getv3() const;
     Vertex getnormal() const;
     Vertex getv(int i) const;
-  };
 
+    /* Return the vector AB^AC normalized, for a triangle ABC */
+    Vertex getOrientation();
+    /* Return the 2 other vertices of the triangle, if first_point is in the triangle.
+     * Set -1 to A and B if not.
+     */
+    void getLastVertices(int first_point, int * A, int * B);
+  };
 /* ------------- STL_DATA -------------*/
   // Classe qui contient toutes les données d'un fichier stl
   class Stl_data {

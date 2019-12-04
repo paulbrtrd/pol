@@ -6,8 +6,21 @@
 #include <algorithm>
 #include "parse_stl.h"
 #include "tools.h"
-
+#include <cmath>
 namespace stl {
+
+
+  /* -------------------------------------*/
+ /* -------------- VERTEX ---------------*/
+/* -------------------------------------*/
+  void Vertex::normalize() {
+    float norm = std::sqrt(x*x + y*y + z*z);
+    x/=norm;
+    y/=norm;
+    z/=norm;
+  }
+
+
    /* -------------------------------------*/
   /* ------------- TRIANGLE --------------*/
  /* -------------------------------------*/
@@ -48,6 +61,19 @@ namespace stl {
     return (data->getnormals())->at(normal_i);
   }
 
+  int Triangle::getv_i(int i) const {
+    switch(i) {
+      case 1:
+        return v1_i;
+      case 2:
+        return v2_i;
+      case 3:
+        return v3_i;
+      default:
+        std::cout << "Error: in getv(): return normal" << std::endl;
+        return normal_i;
+    }
+  }
   Vertex Triangle::getv(int i) const {
     switch(i) {
       case 1:
@@ -61,6 +87,39 @@ namespace stl {
         return this->getnormal();
     }
   }
+
+  Vertex Triangle::getOrientation() {
+    Vertex A = this->getv1();
+    Vertex B = this->getv2();
+    Vertex C = this->getv3();
+
+    Vertex AB = A.vectorTo(B);
+    Vertex AC = A.vectorTo(C);
+
+    Vertex orientation = AB.crossProduct(AC);
+    orientation.normalize();
+    return orientation;
+  }
+  void Triangle::getLastVertices(int first_point, int * A, int * B) {
+    if (v1_i == first_point) {
+      *A = v2_i;
+      *B = v3_i;
+      return;
+    }
+    if (v2_i == first_point) {
+      *A = v1_i;
+      *B = v3_i;
+      return;
+    }
+    if (v3_i == first_point) {
+      *A = v1_i;
+      *B = v2_i;
+      return;
+    }
+    *A = -1;
+    *B = -1;
+  }
+
 
    /* -------------------------------------*/
   /* ------------- STL_DATA --------------*/
@@ -202,7 +261,12 @@ namespace stl {
 
   Stl_data * Stl_data::reducted_mesh() {
 
-    // List of triangles to keep
+    // Création du nouveau Stl_data
+    Stl_data *result = new Stl_data;
+    result->setname(name);
+    int current_triangle = 0;
+
+    // List of triangles to keep (copy of the list of triangle indexes)
     std::vector<int> triangles_to_keep;
     for(int j=0; j<triangles.size();j++) {
       triangles_to_keep.push_back(j);
@@ -220,15 +284,72 @@ namespace stl {
             triangles_to_keep.erase(it);
           }
         }
+
+        // Retriangulation
+
+        // Vertex au centre du trou engendré par la suppression (vertex qui sera supprimé)
+        Vertex v0 = vertices.at(i);
+
+        // Triangle de base (choisi arbitairement)
+        Triangle * t_ptr = &triangles.at(triangles_to_delete.at(0));
+
+        // Sommets des traingles à construire (stocké sous forma d'indices)
+        int A = -1;
+        int B = -1;
+        int C = -1;
+
+        // Extraction des deux sommets extérieurs au cycle formé
+        // par le trou que la suppression de triangles engendre
+        t_ptr->getLastVertices(i, &A, &B);
+        Vertex v1 = vertices.at(A);
+
+
+        for (int t=1; t<triangles_to_delete.size(); t++) {
+          t_ptr = &triangles.at(triangles_to_delete.at(t));
+          t_ptr->getLastVertices(i, &B, &C);
+          if (B != A && C != A) { // Si le triangle en cours n'est pas le triangle de base
+
+            Vertex v2 = vertices.at(B);
+            Vertex v3 = vertices.at(C);
+
+            Vertex AB = v1.vectorTo(v2);
+            Vertex AC = v1.vectorTo(v3);
+
+            Vertex normal = AB.crossProduct(AC);
+            normal.normalize();
+            Vertex crossprod = AB.crossProduct(AC);
+            // L'orientation du triangle est nécessaire au choix de l'ordre des
+            // points A, B et C lors de la création du nouveau triangle
+            Vertex triangle_orientation = t_ptr->getOrientation();
+
+            if(triangle_orientation.dot(crossprod) < 0) {
+              // Si le nouveau triangle ABC n'est pas orienté pareil
+              // que le triangle original, on inverse B et C, et le sens de la normale.
+              v2 = vertices.at(C);
+              v3 = vertices.at(B);
+              normal.invert();
+            }
+
+
+
+            // Ajout de ABC dans le nouveau Stl_data
+            int i_normal = result->get_or_add_normal(normal, current_triangle);
+            int i_v1 = result->get_or_add_vertex(v1, current_triangle);
+            int i_v2 = result->get_or_add_vertex(v2, current_triangle);
+            int i_v3 = result->get_or_add_vertex(v3, current_triangle);
+
+            // Add the triangle to the list
+            result->addTriangle(Triangle(i_normal, i_v1, i_v2, i_v3, result));
+            current_triangle ++;
+          }
+        }
       }
     }
 
-    // Création du nouveau Stl_data
-    Stl_data *result = new Stl_data;
-    result->setname(name);
-    int current_triangle = 0;
 
-    // Pour chaque triangle que l'on veut conserver
+
+
+    // Ajout des triangles qui n'ont pas été supprimés
     for (int & i:triangles_to_keep) {
       Triangle t = triangles.at(i);
       Vertex normal = t.getnormal();
@@ -244,6 +365,7 @@ namespace stl {
 
       // Add the triangle to the list
       result->addTriangle(Triangle(i_normal, i_v1, i_v2, i_v3, result));
+      current_triangle ++;
     }
 
     return result;
