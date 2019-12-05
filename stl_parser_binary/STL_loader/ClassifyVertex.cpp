@@ -44,58 +44,26 @@ bool simpleVertex(stl::Vertex v){
 
 
 
-//////////////////////////////////////////////////////////////////////////
-std::vector <int> equation_plane(stl::Vertex v1, stl::Vertex v2,stl::Vertex v3)
-{
 
-  float a1= v2.getx() - v1.getx();
-  float b1= v2.gety() - v1.gety();
-  float c1= v2.getz() - v1.getz();
-  float a2= v3.getx() - v1.getx();
-  float b2= v3.gety() - v1.gety();
-  float c2= v3.getz() - v1.getz();
-  float a= b1*c2 - b2*c1;
-  float b= a2*c1 - a1*c2;
-  float c= a1*b2 - b1*a2;
-  float d=( - a*v1.getx() - b*v1.gety() - c*v1.getz());
-  std::vector <int> plane;
-  plane.push_back(a);
-  plane.push_back(b);
-  plane.push_back(c);
-  plane.push_back(d);
-  return plane;
 
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+float distance_vertices (stl::Vertex v1, stl::Vertex v2){
+  float x1=v1.getx();
+  float y1=v1.gety();
+  float z1=v1.getz();
+  float x2=v2.getx();
+  float y2=v2.gety();
+  float z2=v2.getz();
+  float d;
+  d= sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2));
+  return d;
 }
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////
-float distance_to_plane(stl::Vertex v1, stl::Vertex v2,stl::Vertex v3,stl::Vertex v)
-{
-  float dist;
-  std::vector<int> plane;
-  plane = equation_plane(v1, v2, v3);
-  float a= plane.at(0);
-  float b= plane.at(1);
-  float c= plane.at(2);
-  float d= plane.at(3);
-  float x= v.getx();
-  float y= v.gety();
-  float z= v.getz();
-
-  if (a==0 && b==0 && c==0){
-    return -1;
-  }
-  else {
-    dist = abs( a*x + b*y + c*z +d)/sqrt(a*a + b*b + c*c);
-    return dist;
-  }
-
-}
-
-
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,13 +83,25 @@ std::vector <int> list_connected_vertices(stl::Vertex v)
 
   }
   // create the list of indexes of the connected vertices
+  int k=0;
+  int l;
   for (stl::Triangle t:connected_triang){
       for (int i=1;i<=3;i++){
         v_courant = t.getv(i);
         if (!(v_courant==v)){
+
             for (int j=0; j<((data->getvertices())->size()) ; j++){
-              if (v_courant==((data->getvertices())->at(j))){
-                vect_vertices.push_back(j);
+              if (v_courant==((data->getvertices())->at(j)) ) {
+                l=0;
+                while( l<vect_vertices.size() && j!= vect_vertices.at(l) ) {
+                  l++;
+                }
+                if (l==vect_vertices.size()){
+                    vect_vertices.push_back(j);
+                    k++;
+                    std::cout<<"l'indice de vertex connecté numéro "<< k<< " est : " << j <<std::endl;
+                }
+
               }
             }
         }
@@ -132,37 +112,37 @@ std::vector <int> list_connected_vertices(stl::Vertex v)
 
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-bool vertex_critirea(stl::Vertex v, float dist_critirea)
-{
-  std::vector<int> list_vertices_index = list_connected_vertices(v);
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool vertex_criterea(stl::Vertex v, float dist_critere){
+  float d;
+  std::vector<int> index_connected_vertices;
+  index_connected_vertices = list_connected_vertices (v);
+  stl::Vertex average_vertex(0,0,0);
   stl::Stl_data * data = v.getdata();
   std::vector<stl::Vertex> * list_vertices = data->getvertices();
-  std::cout << "taille :" << list_vertices ->size()<<std::endl;
-  stl::Vertex a = list_vertices->at(list_vertices_index.at(0));
-  std::cout<< "the first vertex of the plane : " << a <<std::endl;
-  stl::Vertex b = list_vertices->at(list_vertices_index.at(1));
-  std::cout<< "the second vertex of the plane : " << b <<std::endl;
-  stl::Vertex c = list_vertices->at(list_vertices_index.at(2));
-  std::cout<< "the third vertex of the plane : " << c <<std::endl;
 
-  float dist = distance_to_plane (a,b,c,v);
-  if (dist >=0)
-  {
-    if (dist < dist_critirea ){
-      std::cout<<"distance of the vertex to the plane : "<< dist <<"  is little enough so that the vertex can be deleted"<<std::endl;
-      return true;
-    }
-    else {
-      std::cout<<"distance of the vertex to the plane : "<< dist << "  is big enough so that the vertex can't be deleted"<<std::endl;
-      return false;
-    }
+  int M = index_connected_vertices.size();
+
+  for ( int i : index_connected_vertices){
+    average_vertex.setx( average_vertex.getx() + ((list_vertices->at(i)).getx())/M );
+    average_vertex.sety( average_vertex.gety() + ((list_vertices->at(i)).gety())/M );
+    average_vertex.setz( average_vertex.getz() + ((list_vertices->at(i)).getz())/M );
+  }
+  d= distance_vertices(average_vertex,v);
+
+  std::cout<< " distance : "<< d <<std::endl;
+
+  if (d<dist_critere){
+    return true;
   }
   else{
-    std::cout<<"the plan can't be determined with the 3 vertices choosen for this application because they are collinear "<<std::endl;
     return false;
   }
+
 }

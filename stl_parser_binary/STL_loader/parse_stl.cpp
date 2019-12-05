@@ -4,14 +4,69 @@
 #include <sstream>
 #include <streambuf>
 #include <algorithm>
+#include "parse_stl.h"
 #include "tools.h"
-#include "stl_data.h"
-#include "triangle.h"
-#include "vertex.h"
-#include "../ClassifyVertex.h"
 
 namespace stl {
-  /* Constructor */
+   /* -------------------------------------*/
+  /* ------------- TRIANGLE --------------*/
+ /* -------------------------------------*/
+
+/* Constructors */
+  Triangle::Triangle(int normalp, int v1p, int v2p, int v3p, Stl_data * datap){
+    normal_i = normalp;
+	  v1_i = v1p;
+	  v2_i = v2p;
+	  v3_i = v3p;
+    data = datap;
+
+  }
+
+  Triangle::Triangle(Triangle * t) {
+    normal_i = t->getnormal_i();
+    v1_i = t->getv1_i();
+    v2_i = t->getv2_i();
+    v3_i = t->getv3_i();
+  }
+
+/* Getters */
+  Vertex Triangle::getv1() const
+  {
+    return (data->getvertices())->at(v1_i);
+  }
+
+  Vertex Triangle::getv2() const
+  {
+    return (data->getvertices())->at(v2_i);
+  }
+  Vertex Triangle::getv3() const
+  {
+    return (data->getvertices())->at(v3_i);
+  }
+  Vertex Triangle::getnormal() const
+  {
+    return (data->getnormals())->at(normal_i);
+  }
+
+  Vertex Triangle::getv(int i) const {
+    switch(i) {
+      case 1:
+        return this->getv1();
+      case 2:
+        return this->getv2();
+      case 3:
+        return this->getv3();
+      default:
+        std::cout << "Error: in getv(): return normal" << std::endl;
+        return this->getnormal();
+    }
+  }
+
+   /* -------------------------------------*/
+  /* ------------- STL_DATA --------------*/
+ /* -------------------------------------*/
+
+/* Constructor */
   Stl_data::Stl_data(const std::string& stl_path) {
 
     // Extract the file
@@ -41,33 +96,33 @@ namespace stl {
       Vertex v3 = parse_vertex(stl_file);
 
       // Create or get the index to the normal and the vertices
-      int i_normal = this->get_or_add_normal(normal, i);
-      int i_v1 = this->get_or_add_vertex(v1, i);
-      int i_v2 = this->get_or_add_vertex(v2, i);
-      int i_v3 = this->get_or_add_vertex(v3, i);
+  	  int i_normal = this->get_or_add_normal(normal, i);
+  	  int i_v1 = this->get_or_add_vertex(v1, i);
+  	  int i_v2 = this->get_or_add_vertex(v2, i);
+  	  int i_v3 = this->get_or_add_vertex(v3, i);
 
       // Add the triangle to the list
-      Triangle t(i_normal, i_v1, i_v2, i_v3, this);
-      this->addTriangle(t);
+      this->addTriangle(Triangle(i_normal, i_v1, i_v2, i_v3, this));
 
       char dummy[2];
       stl_file.read(dummy, 2);
     }
   }
 
+/* Getters */
+
   int Stl_data::get_or_add_vertex(Vertex & v, int current_triangle) {
     // Check if the vertex already exists
-    for (int i=0; i<vertices.size(); i++){
-      if (v == vertices[i]) {
+	  for (int i=0; i<vertices.size(); i++){
+		  if (v == vertices[i]) {
         // Vertex found: add the current triangle to the connected_triangles of the vertex
         // and return the index of the vertex in the list
         vertices[i].add_connected_triangle(current_triangle);
-        return i;
-      }
-    }
+			  return i;
+		  }
+	  }
 
-    // Vertex not found. Create a new vertex and add it in the vertices list
-    Vertex * new_v = new Vertex(&v, this);
+	  Vertex * new_v = new Vertex(&v, this);
     new_v->add_connected_triangle(current_triangle);
     vertices.push_back(*new_v);
     return vertices.size() - 1;
@@ -116,19 +171,27 @@ namespace stl {
       vertex_to_buf(v_bin, normal);
       new_file.write(v_bin, 12);
 
+      std::cout << "Normale " << i+1 << " ajouté" << std::endl;
+
       Vertex v1 = t.getv1();
       vertex_to_buf(v_bin, v1);
       new_file.write(v_bin, 12);
+
+      std::cout << "Vertex 1 de  " << i+1 << " ajouté" << std::endl;
 
       Vertex v2 = t.getv2();
       vertex_to_buf(v_bin, v2);
       new_file.write(v_bin, 12);
 
+      std::cout << "Vertex 2 de  " << i+1 << " ajouté" << std::endl;
+
       Vertex v3 = t.getv3();
       vertex_to_buf(v_bin, v3);
       new_file.write(v_bin, 12);
 
-      // Décalage de 2 octets entre chaque triangle (voir le constructeur de Stl_data)
+      std::cout << "Vertex 3 de  " << i+1 << " ajouté" << std::endl;
+
+      // Décalage de 2 octets entre chaque triangle (voir parse_stl)
       new_file.write(dummy, 2);
       std::cout << "Triangle " << i+1 << " ajouté" << std::endl;
       i++;
@@ -139,20 +202,15 @@ namespace stl {
 
   Stl_data * Stl_data::reducted_mesh() {
 
-    // Création du nouveau Stl_data
-    Stl_data *result = new Stl_data;
-    result->setname(name);
-    int current_triangle = 0;
-
-    // List of triangles to keep (copy of the list of triangle indexes)
+    // List of triangles to keep
     std::vector<int> triangles_to_keep;
     for(int j=0; j<triangles.size();j++) {
       triangles_to_keep.push_back(j);
     }
 
-    for(int i=0; i< vertices.size();i++) {
+    for(int i=0;i<vertices.size();i++) {
       // Un vertex sur 5 est supprimé
-      if ( simpleVertex(vertices.at(i)) && vertex_criterea(vertices.at(i), 0.1)) {
+      if (i%5==0) {
         // Tous les triangles associés à ce vertex sont supprimé
         std::vector<int> triangles_to_delete = vertices.at(i).get_connected_triangle();
         for(int & t: triangles_to_delete) {
@@ -162,68 +220,15 @@ namespace stl {
             triangles_to_keep.erase(it);
           }
         }
-
-        /* Retriangulation */
-
-        // Vertex au centre du trou engendré par la suppression (vertex qui sera supprimé)
-        Vertex v0 = vertices.at(i);
-        // Triangle de base (choisi arbitairement)
-        Triangle * t_ptr = &triangles.at(triangles_to_delete.at(0));
-
-        // Sommets des triangles à construire (stocké sous forma d'indices)
-        int A = -1;
-        int B = -1;
-        int C = -1;
-
-        // Extraction des deux sommets extérieurs au cycle formé
-        // par le trou que la suppression de triangles engendre
-        t_ptr->getLastVertices(i, &A, &B);
-        Vertex v1 = vertices.at(A);
-
-        for (int t=1; t<triangles_to_delete.size(); t++) {
-          t_ptr = &triangles.at(triangles_to_delete.at(t));
-          t_ptr->getLastVertices(i, &B, &C);
-          if (B != A && C != A)
-          {
-            // Si le triangle en cours n'est pas le triangle de base
-            Vertex v2 = vertices.at(B);
-            Vertex v3 = vertices.at(C);
-
-            Vertex AB = v1.vectorTo(v2);
-            Vertex AC = v1.vectorTo(v3);
-
-            Vertex normal = AB.crossProduct(AC);
-            normal.normalize();
-            Vertex crossprod = AB.crossProduct(AC);
-            // L'orientation du triangle est nécessaire au choix de l'ordre des
-            // points A, B et C lors de la création du nouveau triangle
-            Vertex triangle_orientation = t_ptr->getOrientation();
-
-            if(triangle_orientation.dot(crossprod) < 0)
-            {
-              // Si le nouveau triangle ABC n'est pas orienté pareil
-              // que le triangle original, on inverse B et C, et le sens de la normale.
-              v2 = vertices.at(C);
-              v3 = vertices.at(B);
-              normal.invert();
-            }
-
-            // Ajout de ABC dans le nouveau Stl_data
-            int i_normal = result->get_or_add_normal(normal, current_triangle);
-            int i_v1 = result->get_or_add_vertex(v1, current_triangle);
-            int i_v2 = result->get_or_add_vertex(v2, current_triangle);
-            int i_v3 = result->get_or_add_vertex(v3, current_triangle);
-
-            // Add the triangle to the list
-            Triangle t(i_normal, i_v1, i_v2, i_v3, result);
-            result->addTriangle(t);
-            current_triangle ++;
-          }
-        }
       }
     }
 
-    // Ajout des triangles qui n'ont pas été supprimés
+    // Création du nouveau Stl_data
+    Stl_data *result = new Stl_data;
+    result->setname(name);
+    int current_triangle = 0;
+
+    // Pour chaque triangle que l'on veut conserver
     for (int & i:triangles_to_keep) {
       Triangle t = triangles.at(i);
       Vertex normal = t.getnormal();
@@ -232,16 +237,17 @@ namespace stl {
       Vertex v3 = t.getv3();
 
       // Create or get the index to the normal and the vertices
-      int i_normal = result->get_or_add_normal(normal, current_triangle);
-      int i_v1 = result->get_or_add_vertex(v1, current_triangle);
-      int i_v2 = result->get_or_add_vertex(v2, current_triangle);
-      int i_v3 = result->get_or_add_vertex(v3, current_triangle);
+  	  int i_normal = result->get_or_add_normal(normal, current_triangle);
+  	  int i_v1 = result->get_or_add_vertex(v1, current_triangle);
+  	  int i_v2 = result->get_or_add_vertex(v2, current_triangle);
+  	  int i_v3 = result->get_or_add_vertex(v3, current_triangle);
 
       // Add the triangle to the list
-      Triangle new_t(i_normal, i_v1, i_v2, i_v3, result);
-      result->addTriangle(new_t);
-      current_triangle ++;
+      result->addTriangle(Triangle(i_normal, i_v1, i_v2, i_v3, result));
     }
+
     return result;
+
   }
-} // namespace stl
+
+}

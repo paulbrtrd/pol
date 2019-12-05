@@ -59,9 +59,14 @@ int main(int argc, char* argv[]) {
         for (stl::Vertex v : *vertices) {
           if (simpleVertex(v)){
             std::cout<< "this vertex is simple "<<std::endl;
+            if (vertex_criterea(v,0.1)){
+              std::cout<< "vertex must be deleted" <<std::endl;
+            }
+            else{
+              std::cout<< "vertex must stay" <<std::endl;
+            }
           }
-          vertex_critirea (v,0.1);
-          std::cout << v << std::endl;
+
 
 
         }

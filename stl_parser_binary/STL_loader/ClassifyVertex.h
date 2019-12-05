@@ -9,10 +9,9 @@ bool boundaryVertex(stl::Vertex v);
 bool interiorEdgeVertex(stl::Vertex v);
 bool cornerVertex(stl::Vertex v);
 
-//criteria for approving the deletion of the vertex or not
-std::vector <int> equation_plane(stl::Vertex v1, stl::Vertex v2,stl::Vertex v3);
-float distance_to_plane(stl::Vertex v1, stl::Vertex v2,stl::Vertex v3,stl::Vertex v);
+
 
 std::vector <int> list_connected_vertices(stl::Vertex v);
+float distance_vertices (stl::Vertex v1, stl::Vertex v2);
 
-bool vertex_critirea(stl::Vertex v, float d);
+bool vertex_criterea(stl::Vertex v, float dist_critere);

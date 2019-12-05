@@ -24,6 +24,9 @@ namespace stl {
     float getx() const { return x; };
     float gety() const { return y; };
     float getz() const { return z; };
+    void setx(float _x) { x=_x;};
+    void sety(float _y) { y=_y;};
+    void setz(float _z) { z=_z;};
     Stl_data* getdata(){ return data;};
     /* Return the list of triangle indexes */
     std::vector<int> get_connected_triangle() { return connected_triangles; }
