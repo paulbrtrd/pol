@@ -62,6 +62,25 @@ GLvoid affichage(){
       glNormal3f(normal.getx(), normal.gety(), normal.getz());
       for(int i=1; i<=3; i++) {
          stl::Vertex v = t.getv(i);
+         int index = t.getv_i(i);
+         char c = v.vertexType(index);
+         float r=0;
+         float g=0;
+         float b=0;
+         switch (c) {
+           case 's':
+             g=1.0;
+             break;
+           case 'c':
+             r=1.0;
+             break;
+           case 'b':
+             b=1.0;
+             break;
+           default:
+             break;
+         }
+         glColor3f(r,g,b);
          glVertex3f(v.getx() - cali_x, v.gety() - cali_y, v.getz() - cali_z);
       }
       glEnd();

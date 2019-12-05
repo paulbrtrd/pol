@@ -5,6 +5,7 @@
 #include <math.h>
 
 
+<<<<<<< HEAD
 /////////////////////////////////////////////////////////////
 bool simpleVertex(stl::Vertex v){
   std::vector <int> index_connected_triang = v.get_connected_triangle();
@@ -45,6 +46,10 @@ bool simpleVertex(stl::Vertex v){
 
 
 
+=======
+std::vector <int> equation_plane(stl::Vertex v1, stl::Vertex v2,stl::Vertex v3)
+{
+>>>>>>> 60050f6b4484dd5ffa42330ce8bb2664bd9f155e
 
 
 
