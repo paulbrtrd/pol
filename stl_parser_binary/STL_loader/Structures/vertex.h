@@ -27,6 +27,8 @@ namespace stl {
     Stl_data* getdata(){ return data;};
     /* Return the list of triangle indexes */
     std::vector<int> get_connected_triangle() { return connected_triangles; }
+    /* Return the type of the vertex: Simple, Complex, Boundary, Interior, Corner (e) */
+    char vertexType(int vertex_index);
 
     /* Setters */
     /* Add the index of the triangle to the list */
@@ -38,6 +40,9 @@ namespace stl {
     void invert() { x=-x; y=-y; z=-z; };
     void normalize();
     Vertex vectorTo(Vertex & v) { return (Vertex(v.getx() - x, v.gety() - y, v.getz() - z)); };
+
+    /* Return the number of triangle the vertex has in common with v */
+    int nbCommonTriangleWith(Vertex &v);
   };
 
   // Surcharge de == pour les vertex

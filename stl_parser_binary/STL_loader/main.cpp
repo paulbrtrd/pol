@@ -47,6 +47,10 @@ int main(int argc, char* argv[]) {
                   "0. Quitter" << std::endl;
     std::cin >> choice;
     int c=0;
+    int i=0;
+    int nb_c = 0;
+    int nb_s = 0;
+    int nb_b = 0;
     switch(choice)
     {
       case '1':
@@ -56,13 +60,29 @@ int main(int argc, char* argv[]) {
         break;
       case '2':
         std::cout << "\nListe des vertices:\n";
-        for (stl::Vertex v : *vertices) {
-          if (simpleVertex(v)){
-            std::cout<< "this vertex is simple "<<std::endl;
+        nb_c = 0;
+        nb_s = 0;
+        nb_b = 0;
+        for (int j=0; j<vertices->size(); j++) {
+          stl::Vertex v = vertices->at(j);
+          char vertex_type = v.vertexType(j);
+          std::cout << v << " (" << vertex_type << ")" << std::endl;
+          switch (vertex_type) {
+            case 's':
+              nb_s++;
+              break;
+            case 'c':
+              nb_c++;
+              break;
+            case 'b':
+              nb_b++;
+              break;
+            default:
+              break;
           }
-          std::cout << v << std::endl;
-
         }
+        std::cout << "B: " << nb_b << "\tC: " << nb_c << "\tS: " << nb_s << std::endl;
+
         break;
       case '3':
         std::cout << "\nListe des normales:\n";
