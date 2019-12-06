@@ -51,6 +51,7 @@ int main(int argc, char* argv[]) {
     int nb_c = 0;
     int nb_s = 0;
     int nb_b = 0;
+    int nb_candidate = 0;
     switch(choice)
     {
       case '1':
@@ -60,30 +61,19 @@ int main(int argc, char* argv[]) {
         break;
       case '2':
         std::cout << "\nListe des vertices:\n";
-<<<<<<< HEAD
-        for (stl::Vertex v : *vertices) {
-          if (simpleVertex(v)){
-            std::cout<< "this vertex is simple "<<std::endl;
-            if (vertex_criterea(v,0.1)){
-              std::cout<< "vertex must be deleted" <<std::endl;
-            }
-            else{
-              std::cout<< "vertex must stay" <<std::endl;
-            }
-          }
-
-
-
-=======
         nb_c = 0;
         nb_s = 0;
         nb_b = 0;
+        nb_candidate = 0;
         for (int j=0; j<vertices->size(); j++) {
           stl::Vertex v = vertices->at(j);
           char vertex_type = v.vertexType(j);
           std::cout << v << " (" << vertex_type << ")" << std::endl;
           switch (vertex_type) {
             case 's':
+              if (vertex_criterea(v, 0.1)) {
+                nb_candidate++;
+              }
               nb_s++;
               break;
             case 'c':
@@ -95,9 +85,8 @@ int main(int argc, char* argv[]) {
             default:
               break;
           }
->>>>>>> 60050f6b4484dd5ffa42330ce8bb2664bd9f155e
         }
-        std::cout << "B: " << nb_b << "\tC: " << nb_c << "\tS: " << nb_s << std::endl;
+        std::cout << "B: " << nb_b << "\tC: " << nb_c << "\tS: " << nb_s << "Candidates: " << nb_candidate << std::endl;
 
         break;
       case '3':

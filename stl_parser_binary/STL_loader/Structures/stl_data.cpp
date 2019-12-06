@@ -152,7 +152,7 @@ namespace stl {
 
     for(int i=0; i< vertices.size();i++) {
       // Un vertex sur 5 est supprimé
-      if ( simpleVertex(vertices.at(i)) && vertex_criterea(vertices.at(i), 0.1)) {
+      if ( (vertices.at(i).vertexType(i)=='s') && vertex_criterea(vertices.at(i), 0.1)) {
         // Tous les triangles associés à ce vertex sont supprimé
         std::vector<int> triangles_to_delete = vertices.at(i).get_connected_triangle();
         for(int & t: triangles_to_delete) {

@@ -4,60 +4,6 @@
 #include <iostream>
 #include <math.h>
 
-
-<<<<<<< HEAD
-/////////////////////////////////////////////////////////////
-bool simpleVertex(stl::Vertex v){
-  std::vector <int> index_connected_triang = v.get_connected_triangle();
-  stl::Stl_data * data = v.getdata();
-  std::vector<stl::Triangle> connected_triang;
-  std::vector<stl::Vertex> vertices_connected_triang;
-  int mycount;
-
-// create connected_triangles vector
-  for (int & i: index_connected_triang){
-    stl::Triangle t((data->gettriangles())->at(i));
-    connected_triang.push_back(t);
-
-  }
-// create vertices_connected_triangles vector
-  for (stl::Triangle t:connected_triang){
-      for (int i=1;i<=3;i++){
-        stl::Vertex v_courant = t.getv(i);
-        if (!(v_courant==v)){
-            vertices_connected_triang.push_back(v_courant);
-        }
-      }
-  }
-
-/* check if the vertices connected to the vertex v giving in argument
-   are linked only to 2 connected triangles*/
-  for (stl::Vertex  vert : vertices_connected_triang){
-    mycount=count(vertices_connected_triang.begin(),vertices_connected_triang.end(),vert);
-
-    if (mycount !=2){
-      return false;
-    }
-  }
-  return true;
-}
-
-
-
-
-
-=======
-std::vector <int> equation_plane(stl::Vertex v1, stl::Vertex v2,stl::Vertex v3)
-{
->>>>>>> 60050f6b4484dd5ffa42330ce8bb2664bd9f155e
-
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 float distance_vertices (stl::Vertex v1, stl::Vertex v2){
   float x1=v1.getx();
   float y1=v1.gety();
@@ -69,9 +15,6 @@ float distance_vertices (stl::Vertex v1, stl::Vertex v2){
   d= sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2));
   return d;
 }
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////
 
 std::vector <int> list_connected_vertices(stl::Vertex v)
 {
@@ -94,7 +37,6 @@ std::vector <int> list_connected_vertices(stl::Vertex v)
       for (int i=1;i<=3;i++){
         v_courant = t.getv(i);
         if (!(v_courant==v)){
-
             for (int j=0; j<((data->getvertices())->size()) ; j++){
               if (v_courant==((data->getvertices())->at(j)) ) {
                 l=0;
@@ -104,7 +46,7 @@ std::vector <int> list_connected_vertices(stl::Vertex v)
                 if (l==vect_vertices.size()){
                     vect_vertices.push_back(j);
                     k++;
-                    std::cout<<"l'indice de vertex connecté numéro "<< k<< " est : " << j <<std::endl;
+                    //std::cout<<"l'indice de vertex connecté numéro "<< k<< " est : " << j <<std::endl;
                 }
 
               }
