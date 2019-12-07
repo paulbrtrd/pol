@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
               break;
           }
         }
-        std::cout << "B: " << nb_b << "\tC: " << nb_c << "\tS: " << nb_s << "Candidates: " << nb_candidate << std::endl;
+        std::cout << "B: " << nb_b << "\tC: " << nb_c << "\tS: " << nb_s << " Candidates: " << nb_candidate << std::endl;
 
         break;
       case '3':
