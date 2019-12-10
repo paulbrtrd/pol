@@ -16,6 +16,15 @@ float distance_vertices (stl::Vertex v1, stl::Vertex v2){
   return d;
 }
 
+float distance_to_edge (stl::Vertex v, stl::Vertex v1Edge, stl::Vertex v2Edge){
+    stl::Vertex vect_directeur = v1Edge.vectorTo(v2Edge);
+    stl::Vertex vect_v_v1Edge = v1Edge.vectorTo(v);
+    stl::Vertex vect_cross_prod = vect_directeur.crossProduct(vect_v_v1Edge);
+    float norm_vect_directeur = vect_directeur.norm();
+    float norm_vect_cross_prod = vect_cross_prod.norm();
+    return norm_vect_cross_prod/norm_vect_directeur;
+}
+
 std::vector <int> list_connected_vertices(stl::Vertex v)
 {
   stl::Stl_data * data = v.getdata();
@@ -66,30 +75,62 @@ std::vector <int> list_connected_vertices(stl::Vertex v)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool vertex_criterea(stl::Vertex v, float dist_critere){
+bool vertex_criteria(stl::Vertex v, char type, float dist_critere){
   float d;
   std::vector<int> index_connected_vertices;
   index_connected_vertices = list_connected_vertices (v);
   stl::Vertex average_vertex(0,0,0);
   stl::Stl_data * data = v.getdata();
-  std::vector<stl::Vertex> * list_vertices = data->getvertices();
+  std::vector<stl::Vertex>  list_vertices = *(data->getvertices());
 
   int M = index_connected_vertices.size();
 
-  for ( int i : index_connected_vertices){
-    average_vertex.setx( average_vertex.getx() + ((list_vertices->at(i)).getx())/M );
-    average_vertex.sety( average_vertex.gety() + ((list_vertices->at(i)).gety())/M );
-    average_vertex.setz( average_vertex.getz() + ((list_vertices->at(i)).getz())/M );
-  }
-  d= distance_vertices(average_vertex,v);
+  if (type == 's'){
+      for ( int i : index_connected_vertices){
+        average_vertex.setx( average_vertex.getx() + ((list_vertices.at(i)).getx())/M );
+        average_vertex.sety( average_vertex.gety() + ((list_vertices.at(i)).gety())/M );
+        average_vertex.setz( average_vertex.getz() + ((list_vertices.at(i)).getz())/M );
+      }
+      d= distance_vertices(average_vertex,v);
 
-  std::cout<< " distance : "<< d <<std::endl;
+      std::cout<< " distance : "<< d <<std::endl;
 
-  if (d<dist_critere){
-    return true;
+      if (d<dist_critere){
+        return true;
+      }
+      else{
+        return false;
+      }
   }
-  else{
-    return false;
+  if (type =='b'){
+      int nb_common_triangles;
+      std::vector<stl::Vertex> bounds;
+      for ( stl::Vertex & v_cour : list_vertices){
+          nb_common_triangles = v.nbCommonTriangleWith(v_cour);
+          if (nb_common_triangles==1){
+              bounds.push_back(v_cour);
+          }
+      }
+      d = distance_to_edge(v,bounds.at(0),bounds.at(1));
+
+      std::cout << " edge vertex 1 : "<<bounds.at(0)<<std::endl;
+      std::cout << " edge vertex 2 : "<<bounds.at(1)<<std::endl;
+
+      std::cout<< " distance : "<< d <<std::endl;
+
+      if (d<dist_critere){
+        return true;
+      }
+      else{
+        return false;
+      }
   }
+  return false;
+
 
 }
+
+
+
+
+////////////////////////////////

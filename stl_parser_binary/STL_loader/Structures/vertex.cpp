@@ -11,6 +11,11 @@ namespace stl {
     z/=norm;
   }
 
+  float Vertex::norm(){
+    float norm = std::sqrt(x*x + y*y + z*z);
+    return norm;
+  }
+
   int Vertex::nbCommonTriangleWith(Vertex &v) {
     int result = 0;
     std::vector<int> v_triangles = v.get_connected_triangle();

@@ -43,6 +43,7 @@ namespace stl {
     void invert() { x=-x; y=-y; z=-z; };
     void normalize();
     Vertex vectorTo(Vertex & v) { return (Vertex(v.getx() - x, v.gety() - y, v.getz() - z)); };
+    float norm();
 
     /* Return the number of triangle the vertex has in common with v */
     int nbCommonTriangleWith(Vertex &v);
