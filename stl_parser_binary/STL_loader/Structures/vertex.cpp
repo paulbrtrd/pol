@@ -1,11 +1,11 @@
 #include "vertex.h"
-#include <cmath>
+
 #include <iostream>
 #include <algorithm>
 
 namespace stl {
   void Vertex::normalize() {
-    float norm = std::sqrt(x*x + y*y + z*z);
+    float norm = this->norm();
     x/=norm;
     y/=norm;
     z/=norm;
@@ -24,9 +24,19 @@ namespace stl {
     return result;
   }
 
-  char Vertex::vertexType(int vertex_index) {
-    char vertex_type = 's';
+  float Vertex::distanceTo(Vertex & v) {
+    Vertex vect = this->vectorTo(v);
+    float dist = vect.dot(vect)/(vect.norm());
+    return dist;
+  }
 
+  char Vertex::vertexType(int vertex_index, float *dist) {
+    char vertex_type = 's';
+    *dist = 0;
+    float xm = 0;
+    float ym = 0;
+    float zm = 0;
+    int nb_vertices = 0;
     std::vector<stl::Triangle> connected_triang;
     // create connected_triangles vector with Triangle objects
     for (int & i: connected_triangles){
@@ -47,6 +57,14 @@ namespace stl {
       int nb_common_triangles_v1 = this->nbCommonTriangleWith(v1);
       int nb_common_triangles_v2 = this->nbCommonTriangleWith(v2);
 
+      xm += v1.getx();
+      ym += v1.gety();
+      zm += v1.getz();
+      nb_vertices++;
+      xm += v2.getx();
+      ym += v2.gety();
+      zm += v2.getz();
+      nb_vertices++;
 
       if ( (nb_common_triangles_v1 != 2) || (nb_common_triangles_v2 != 2) ) {
         /*
@@ -109,7 +127,13 @@ namespace stl {
       std::cout << "Only one bound found for " << *this << std::endl;
       vertex_type = 'c';
     }
-
+    else {
+      xm/=nb_vertices;
+      ym/=nb_vertices;
+      zm/=nb_vertices;
+      Vertex vm = Vertex(xm,ym,zm);
+      *dist = this->distanceTo(vm);
+    }
     return vertex_type;
   }
 
