@@ -1,6 +1,6 @@
 #pragma once
 #include "stl_data.h"
-
+#include <cmath>
 namespace stl {
   class Stl_data;
   class Vertex {
@@ -31,7 +31,7 @@ namespace stl {
     /* Return the list of triangle indexes */
     std::vector<int> get_connected_triangle() { return connected_triangles; }
     /* Return the type of the vertex: Simple, Complex, Boundary, Interior, Corner (e) */
-    char vertexType(int vertex_index);
+    char vertexType(int vertex_index, float *dist);
 
     /* Setters */
     /* Add the index of the triangle to the list */
@@ -41,10 +41,10 @@ namespace stl {
     Vertex crossProduct(Vertex & v) { return (Vertex(y*v.getz() - z*v.gety(), z*v.getx() - x*v.getz(), x*v.gety() - y*v.getx())); }
     float dot(Vertex & v) { return (x*v.getx() + y*v.gety() + z*v.getz()); }
     void invert() { x=-x; y=-y; z=-z; };
+    float norm() { return std::sqrt(x*x + y*y + z*z); };
     void normalize();
     Vertex vectorTo(Vertex & v) { return (Vertex(v.getx() - x, v.gety() - y, v.getz() - z)); };
-    float norm();
-
+    float distanceTo(Vertex & v);
     /* Return the number of triangle the vertex has in common with v */
     int nbCommonTriangleWith(Vertex &v);
   };
