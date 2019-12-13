@@ -42,15 +42,16 @@ namespace stl {
      * Set -1 to A and B if not.
      */
     void getLastVertices(int first_point, int * A, int * B);
+
+    /* Decrement the index greater than i */
+    void decalVertices(int i);
   };
+  /*
+   * Surcharge de == pour les triangles.
+   * Le test est effectué seulement sur l'indice des vertices.
+   * L'égalité du data relié au triangle n'est pas testée.
+  */
+  bool operator==(const Triangle  t1, const Triangle  t2);
+  // Surcharge de l'opérateur << pour l'affichage des informations d'un triangle
+  std::ostream& operator<<(std::ostream& out, const Triangle& t);
 }
-
-/*
- * Surcharge de == pour les triangles.
- * Le test est effectué seulement sur l'indice des vertices.
- * L'égalité du data relié au triangle n'est pas testée.
-*/
-bool operator==(const stl::Triangle  t1, const stl::Triangle  t2);
-
-// Surcharge de l'opérateur << pour l'affichage des informations d'un triangle
-std::ostream& operator<<(std::ostream& out, const stl::Triangle& t);

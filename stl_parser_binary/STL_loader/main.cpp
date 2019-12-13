@@ -110,11 +110,13 @@ int main(int argc, char* argv[]) {
         break;
       case '4':
         std::cout << "\nListe des triangles:\n";
+
         for (stl::Triangle t : triangles) {
           std::cout << t << std::endl;
           c = (t.getv1_i());
-          std::cout<<c<<std::endl;
+          std::cout << c << std::endl;
         }
+
         break;
       case '5':
         // Init openGL
@@ -129,11 +131,7 @@ int main(int argc, char* argv[]) {
         std::cout << "File created: created_file.stl" << std::endl;
         break;
       case '7':
-        // application de la réduction (création d'un nouveau Stl_data)
-        new_info_ptr = info_ptr->reducted_mesh();
-        // Suppression de l'ancien Stl_data
-        delete info_ptr;
-        info_ptr = new_info_ptr;
+        info_ptr->delete_one_vertex();
         triangles = *(info_ptr->gettriangles());
         vertices = info_ptr->getvertices();
         normals = info_ptr->getnormals();

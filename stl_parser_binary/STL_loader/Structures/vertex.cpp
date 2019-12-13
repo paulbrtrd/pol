@@ -43,20 +43,20 @@ namespace stl {
       stl::Triangle t((data->gettriangles())->at(i));
       connected_triang.push_back(t);
     }
-
     /* Variables to store the bounds of the cycle */
     int first_bound = -1;
     int second_bound = -1;
-
     // Analyse each connected triangle
     for (stl::Triangle t:connected_triang){
       int i1, i2; // Indexes of the 2 other vertices of the connected triangle
       t.getLastVertices(vertex_index, &i1, &i2);
+      if (i1==-1 || i2==-1) {
+        std::cout << "ERREUR: getLastVertices a échoué pour le vertex " << vertex_index << "sur le triangle " << t << std::endl;
+      }
       Vertex v1 = (data->getvertices())->at(i1);
       Vertex v2 = (data->getvertices())->at(i2);
       int nb_common_triangles_v1 = this->nbCommonTriangleWith(v1);
       int nb_common_triangles_v2 = this->nbCommonTriangleWith(v2);
-
       xm += v1.getx();
       ym += v1.gety();
       zm += v1.getz();
@@ -116,7 +116,6 @@ namespace stl {
         }
       }
     }
-
     /* Check wether the vertex is a boundary */
     if (second_bound != -1){
       // 2 bounds found --> boundary vertex
@@ -135,6 +134,21 @@ namespace stl {
       *dist = this->distanceTo(vm);
     }
     return vertex_type;
+  }
+
+  void Vertex::removeTriangle(int t) {
+    std::vector<int>::iterator it = std::find(connected_triangles.begin(), connected_triangles.end(), t);
+    if (it != connected_triangles.end()) {
+      connected_triangles.erase(it);
+    }
+  }
+
+  void Vertex::decalTriangles(int i_min) {
+    for (int i=0; i < connected_triangles.size(); i++) {
+      if (connected_triangles.at(i)>i_min) {
+        connected_triangles.at(i)--;
+      }
+    }
   }
 
   bool operator==(const Vertex  v1, const Vertex  v2) {

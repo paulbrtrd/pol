@@ -101,21 +101,33 @@ namespace stl {
       *A = -1;
       *B = -1;
     }
-}
 
-bool operator==(const stl::Triangle  t1, const stl::Triangle  t2) {
-  return ( (t1.getv1_i() == t2.getv1_i()) && (t1.getv2_i() == t2.getv2_i()) && (t1.getv3_i() == t2.getv3_i()) && (t1.getnormal_i() == t2.getnormal_i()) );
-}
+    void Triangle::decalVertices(int i) {
+      if (v1_i > i) {
+        v1_i --;
+      }
+      if (v2_i > i) {
+        v2_i --;
+      }
+      if (v3_i > i) {
+        v3_i --;
+      }
+    }
 
-std::ostream& operator<<(std::ostream& out, const stl::Triangle& t) {
-  out << "---- TRIANGLE ----" << std::endl;
-  stl::Vertex normal = t.getnormal();
-  stl::Vertex v1 = t.getv1();
-  stl::Vertex v2 = t.getv2();
-  stl::Vertex v3 = t.getv3();
-  out << normal << std::endl;
-  out << v1 << std::endl;
-  out << v2 << std::endl;
-  out << v3 << std::endl;
-  return out;
+    bool operator==(const Triangle  t1, const Triangle  t2) {
+      return ( (t1.getv1_i() == t2.getv1_i()) && (t1.getv2_i() == t2.getv2_i()) && (t1.getv3_i() == t2.getv3_i()) && (t1.getnormal_i() == t2.getnormal_i()) );
+    }
+
+    std::ostream& operator<<(std::ostream& out, const Triangle& t) {
+      out << "---- TRIANGLE ----" << std::endl;
+      Vertex normal = t.getnormal();
+      Vertex v1 = t.getv1();
+      Vertex v2 = t.getv2();
+      Vertex v3 = t.getv3();
+      out << normal << std::endl;
+      out << v1 << std::endl;
+      out << v2 << std::endl;
+      out << v3 << std::endl;
+      return out;
+    }
 }

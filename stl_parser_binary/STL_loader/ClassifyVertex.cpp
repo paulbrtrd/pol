@@ -46,7 +46,6 @@ std::vector <int> list_connected_vertices(stl::Vertex v)
                 if (l==vect_vertices.size()){
                     vect_vertices.push_back(j);
                     k++;
-                    //std::cout<<"l'indice de vertex connecté numéro "<< k<< " est : " << j <<std::endl;
                 }
 
               }
@@ -82,8 +81,6 @@ bool vertex_criterea(stl::Vertex v, float dist_critere){
     average_vertex.setz( average_vertex.getz() + ((list_vertices->at(i)).getz())/M );
   }
   d= distance_vertices(average_vertex,v);
-
-  std::cout<< " distance : "<< d <<std::endl;
 
   if (d<dist_critere){
     return true;

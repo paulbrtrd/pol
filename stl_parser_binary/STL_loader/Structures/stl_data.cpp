@@ -137,111 +137,127 @@ namespace stl {
     new_file.close();
   }
 
-  Stl_data * Stl_data::reducted_mesh() {
+  void Stl_data::_deleteVertex(int i,std::vector<int> * triangles_to_delete_i_ptr) {
+    for(int & t: *triangles_to_delete_i_ptr) {
+      for (Vertex & v:vertices) {
+        v.removeTriangle(t);
+      }
+    }
+    int offset = 0;
+    int index;
+    for(int & t: *triangles_to_delete_i_ptr) {
 
-    // Création du nouveau Stl_data
-    Stl_data *result = new Stl_data;
-    result->setname(name);
-    int current_triangle = 0;
+      /* Position of the triangle in the list */
+      index = t - offset;
 
-    // List of triangles to keep (copy of the list of triangle indexes)
-    std::vector<int> triangles_to_keep;
-    for(int j=0; j<triangles.size();j++) {
-      triangles_to_keep.push_back(j);
+      /* Remove the triangle from the list */
+      triangles.erase(triangles.begin() + index);
+
+      /* The triangle at the position index is removed
+      --> every position greater than index decrement */
+      for (Vertex & v:vertices) {
+        v.decalTriangles(index);
+      }
+
+      /* Update the offset */
+      offset++;
     }
 
+    //Once the triangles deleted, delete the vertexType
+    vertices.erase(vertices.begin() + i);
+    for(Triangle & t: triangles) {
+      t.decalVertices(i);
+    }
+  }
+
+  void Stl_data::_fillHoles(int i,std::vector<Triangle> * triangles_to_delete_ptr) {
+    int current_triangle = triangles.size();
+    // Vertex au centre du trou engendré par la suppression (vertex qui sera supprimé)
+    Vertex v0 = vertices.at(i);
+    // Triangle de base (choisi arbitairement)
+    Triangle * t_ptr = &triangles_to_delete_ptr->at(0);
+
+    int nb_triangle_added = 0;
+    // Sommets des triangles à construire (stocké sous forma d'indices)
+    int A = -1;
+    int B = -1;
+    int C = -1;
+
+    // Extraction des deux sommets extérieurs au cycle formé
+    // par le trou que la suppression de triangles engendre
+    t_ptr->getLastVertices(i, &A, &B);
+    Vertex v1 = vertices.at(A);
+
+    for (int t=1; t<triangles_to_delete_ptr->size(); t++) {
+      t_ptr = &triangles_to_delete_ptr->at(t);
+      t_ptr->getLastVertices(i, &B, &C);
+      if (B != A && C != A)
+      {
+        // Si le triangle en cours n'est pas le triangle de base
+        Vertex v2 = vertices.at(B);
+        Vertex v3 = vertices.at(C);
+
+        Vertex AB = v1.vectorTo(v2);
+        Vertex AC = v1.vectorTo(v3);
+
+        Vertex normal = AB.crossProduct(AC);
+        normal.normalize();
+        Vertex crossprod = AB.crossProduct(AC);
+        // L'orientation du triangle est nécessaire au choix de l'ordre des
+        // points A, B et C lors de la création du nouveau triangle
+        Vertex triangle_orientation = t_ptr->getOrientation();
+
+        if(triangle_orientation.dot(crossprod) < 0)
+        {
+          // Si le nouveau triangle ABC n'est pas orienté pareil
+          // que le triangle original, on inverse B et C, et le sens de la normale.
+          v2 = vertices.at(C);
+          v3 = vertices.at(B);
+          normal.invert();
+        }
+
+        // Ajout de ABC dans le nouveau Stl_data
+        int i_normal = get_or_add_normal(normal, current_triangle + nb_triangle_added);
+        int i_v1 = get_or_add_vertex(v1, current_triangle + nb_triangle_added);
+        int i_v2 = get_or_add_vertex(v2, current_triangle + nb_triangle_added);
+        int i_v3 = get_or_add_vertex(v3, current_triangle + nb_triangle_added);
+
+        // Add the triangle to the list
+        Triangle t(i_normal, i_v1, i_v2, i_v3, this);
+        addTriangle(t);
+        nb_triangle_added ++;
+      }
+    }
+  }
+
+  bool Stl_data::delete_one_vertex()
+  {
+    int best_candidate = -1;
+    float best_distance = 0.1;
     for(int i=0; i< vertices.size();i++) {
-      // Un vertex sur 5 est supprimé
-      if ( (vertices.at(i).vertexType(i)=='s') && vertex_criterea(vertices.at(i), 0.1)) {
-        // Tous les triangles associés à ce vertex sont supprimé
-        std::vector<int> triangles_to_delete = vertices.at(i).get_connected_triangle();
-        for(int & t: triangles_to_delete) {
-          // Chaque triangle est donc retiré de triangles_to_keep, si il y est encore
-          std::vector<int>::iterator it = std::find(triangles_to_keep.begin(), triangles_to_keep.end(), t);
-          if (it != triangles_to_keep.end()) {
-            triangles_to_keep.erase(it);
-          }
-        }
-
-        /* Retriangulation */
-
-        // Vertex au centre du trou engendré par la suppression (vertex qui sera supprimé)
-        Vertex v0 = vertices.at(i);
-        // Triangle de base (choisi arbitairement)
-        Triangle * t_ptr = &triangles.at(triangles_to_delete.at(0));
-
-        // Sommets des triangles à construire (stocké sous forma d'indices)
-        int A = -1;
-        int B = -1;
-        int C = -1;
-
-        // Extraction des deux sommets extérieurs au cycle formé
-        // par le trou que la suppression de triangles engendre
-        t_ptr->getLastVertices(i, &A, &B);
-        Vertex v1 = vertices.at(A);
-
-        for (int t=1; t<triangles_to_delete.size(); t++) {
-          t_ptr = &triangles.at(triangles_to_delete.at(t));
-          t_ptr->getLastVertices(i, &B, &C);
-          if (B != A && C != A)
-          {
-            // Si le triangle en cours n'est pas le triangle de base
-            Vertex v2 = vertices.at(B);
-            Vertex v3 = vertices.at(C);
-
-            Vertex AB = v1.vectorTo(v2);
-            Vertex AC = v1.vectorTo(v3);
-
-            Vertex normal = AB.crossProduct(AC);
-            normal.normalize();
-            Vertex crossprod = AB.crossProduct(AC);
-            // L'orientation du triangle est nécessaire au choix de l'ordre des
-            // points A, B et C lors de la création du nouveau triangle
-            Vertex triangle_orientation = t_ptr->getOrientation();
-
-            if(triangle_orientation.dot(crossprod) < 0)
-            {
-              // Si le nouveau triangle ABC n'est pas orienté pareil
-              // que le triangle original, on inverse B et C, et le sens de la normale.
-              v2 = vertices.at(C);
-              v3 = vertices.at(B);
-              normal.invert();
-            }
-
-            // Ajout de ABC dans le nouveau Stl_data
-            int i_normal = result->get_or_add_normal(normal, current_triangle);
-            int i_v1 = result->get_or_add_vertex(v1, current_triangle);
-            int i_v2 = result->get_or_add_vertex(v2, current_triangle);
-            int i_v3 = result->get_or_add_vertex(v3, current_triangle);
-
-            // Add the triangle to the list
-            Triangle t(i_normal, i_v1, i_v2, i_v3, result);
-            result->addTriangle(t);
-            current_triangle ++;
-          }
-        }
+      float dist = 0;
+      char vertex_type = vertices.at(i).vertexType(i, &dist);
+      if ( (vertex_type=='s') && (dist < best_distance) ) {
+        best_candidate = i;
+        best_distance = dist;
       }
     }
 
-    // Ajout des triangles qui n'ont pas été supprimés
-    for (int & i:triangles_to_keep) {
-      Triangle t = triangles.at(i);
-      Vertex normal = t.getnormal();
-      Vertex v1 = t.getv1();
-      Vertex v2 = t.getv2();
-      Vertex v3 = t.getv3();
-
-      // Create or get the index to the normal and the vertices
-      int i_normal = result->get_or_add_normal(normal, current_triangle);
-      int i_v1 = result->get_or_add_vertex(v1, current_triangle);
-      int i_v2 = result->get_or_add_vertex(v2, current_triangle);
-      int i_v3 = result->get_or_add_vertex(v3, current_triangle);
-
-      // Add the triangle to the list
-      Triangle new_t(i_normal, i_v1, i_v2, i_v3, result);
-      result->addTriangle(new_t);
-      current_triangle ++;
+    if (best_candidate != -1)
+    {
+      // Tous les triangles associés à ce vertex sont supprimé
+      std::vector<int> triangles_to_delete_i = vertices.at(best_candidate).get_connected_triangle();
+      std::sort(triangles_to_delete_i.begin(), triangles_to_delete_i.end());
+      std::vector<Triangle> triangles_to_delete;
+      for(int & j: triangles_to_delete_i) {
+        triangles_to_delete.push_back(triangles.at(j));
+      }
+      /* Retriangulation */
+      _fillHoles(best_candidate, &triangles_to_delete);
+      /* Deletion of the vertex */
+      _deleteVertex(best_candidate, &triangles_to_delete_i);
+      return true;
     }
-    return result;
+    return false;
   }
 } // namespace stl
