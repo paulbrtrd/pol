@@ -63,7 +63,8 @@ GLvoid affichage(){
       for(int i=1; i<=3; i++) {
          stl::Vertex v = t.getv(i);
          int index = t.getv_i(i);
-         char c = v.vertexType(index);
+         float dist;
+         char c = v.vertexType(index, &dist);
          float r=0;
          float g=0;
          float b=0;

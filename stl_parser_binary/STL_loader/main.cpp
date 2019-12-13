@@ -15,7 +15,7 @@
 #include "opengl_display.h"
 
 int main(int argc, char* argv[]) {
-  std::string stl_file_name = "./Box1x1x1.stl";
+  std::string stl_file_name = "moto.stl";
 
   // Si le nom du fichier est donné en argument, on utilise celui donné
   if (argc == 2) {
@@ -59,16 +59,16 @@ int main(int argc, char* argv[]) {
         std::cout << "Header = " << info_ptr->getname() << std::endl;
         std::cout << "Nombre de triangles = " << triangles.size() << std::endl;
         std::cout << "Nombre de vertices = " << vertices->size() << std::endl;
-        nb_candidate = 0;
+        nb_simple_candidate = 0;
         for (int j=0; j<vertices->size(); j++) {
           stl::Vertex v = vertices->at(j);
           float dist = 0;
           char vertex_type = v.vertexType(j, &dist);
           if (vertex_type == 's' && dist < 0.1) {
-            nb_candidate++;
+            nb_simple_candidate++;
           }
         }
-        std::cout << "Nombre de vertices candidats = " << nb_candidate << std::endl;
+        std::cout << "Nombre de vertices candidats = " << nb_simple_candidate << std::endl;
         break;
       case '2':
         std::cout << "\nListe des vertices:\n";
@@ -86,9 +86,9 @@ int main(int argc, char* argv[]) {
           std::cout << v << " (" << vertex_type << ")" << std::endl;
           switch (vertex_type) {
             case 's':
-      
+
               if (dist < 0.1) {
-                nb_candidate++;
+                nb_simple_candidate++;
               }
               nb_s++;
               break;
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
               nb_c++;
               break;
             case 'b':
-              if (vertex_criteria(v,'b', 0.1)) {
+              if (dist < 0.1) {
                 nb_boundary_candidate++;
               }
               nb_b++;

@@ -143,6 +143,8 @@ namespace stl {
     Stl_data *result = new Stl_data;
     result->setname(name);
     int current_triangle = 0;
+    char vertex_type ;
+    float dist = 0;
 
     // List of triangles to keep (copy of the list of triangle indexes)
     std::vector<int> triangles_to_keep;
@@ -152,7 +154,8 @@ namespace stl {
 
     for(int i=0; i< vertices.size();i++) {
       // Un vertex sur 5 est supprimé
-      if ( (vertices.at(i).vertexType(i)=='s') && vertex_criteria(vertices.at(i), 's', 0.1)) {
+      char vertex_type = vertices.at(i).vertexType(i, &dist);
+      if (vertex_type == 's' && dist < 0.1) {
         // Tous les triangles associés à ce vertex sont supprimé
         std::vector<int> triangles_to_delete = vertices.at(i).get_connected_triangle();
         for(int & t: triangles_to_delete) {

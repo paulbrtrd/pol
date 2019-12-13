@@ -11,10 +11,7 @@ namespace stl {
     z/=norm;
   }
 
-  float Vertex::norm(){
-    float norm = std::sqrt(x*x + y*y + z*z);
-    return norm;
-  }
+
 
   int Vertex::nbCommonTriangleWith(Vertex &v) {
     int result = 0;
@@ -35,6 +32,14 @@ namespace stl {
     return dist;
   }
 
+  float Vertex::distance_to_edge (Vertex & v1Edge, Vertex & v2Edge){
+      stl::Vertex vect_directeur = v1Edge.vectorTo(v2Edge);
+      stl::Vertex vect_v_v1Edge = v1Edge.vectorTo(*this);
+      stl::Vertex vect_cross_prod = vect_directeur.crossProduct(vect_v_v1Edge);
+      float norm_vect_directeur = vect_directeur.norm();
+      float norm_vect_cross_prod = vect_cross_prod.norm();
+      return norm_vect_cross_prod/norm_vect_directeur;
+  }
   char Vertex::vertexType(int vertex_index, float *dist) {
     char vertex_type = 's';
     *dist = 0;
@@ -126,6 +131,7 @@ namespace stl {
     if (second_bound != -1){
       // 2 bounds found --> boundary vertex
       vertex_type = 'b';
+      *dist= this->distance_to_edge((data->getvertices())->at(first_bound),(data->getvertices())->at(second_bound));
     }
     else if (first_bound != -1) {
       // Only one bound found --> complex vertex

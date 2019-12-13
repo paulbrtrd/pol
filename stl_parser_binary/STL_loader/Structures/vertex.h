@@ -45,6 +45,7 @@ namespace stl {
     void normalize();
     Vertex vectorTo(Vertex & v) { return (Vertex(v.getx() - x, v.gety() - y, v.getz() - z)); };
     float distanceTo(Vertex & v);
+    float distance_to_edge (Vertex & v1Edge, Vertex & v2Edge);
     /* Return the number of triangle the vertex has in common with v */
     int nbCommonTriangleWith(Vertex &v);
   };
