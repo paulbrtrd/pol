@@ -55,7 +55,6 @@ std::vector <int> list_connected_vertices(stl::Vertex v)
                 if (l==vect_vertices.size()){
                     vect_vertices.push_back(j);
                     k++;
-                    //std::cout<<"l'indice de vertex connecté numéro "<< k<< " est : " << j <<std::endl;
                 }
 
               }
@@ -93,6 +92,7 @@ bool vertex_criteria(stl::Vertex v, char type, float dist_critere){
       }
       d= distance_vertices(average_vertex,v);
 
+<<<<<<< HEAD
       std::cout<< " distance : "<< d <<std::endl;
 
       if (d<dist_critere){
@@ -101,6 +101,10 @@ bool vertex_criteria(stl::Vertex v, char type, float dist_critere){
       else{
         return false;
       }
+=======
+  if (d<dist_critere){
+    return true;
+>>>>>>> 3da89f0bdaf3bcfe0adf20e4b933b014cd65d85c
   }
   if (type =='b'){
       int nb_common_triangles;

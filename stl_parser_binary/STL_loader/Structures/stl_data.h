@@ -19,6 +19,18 @@ namespace stl {
     /* List of normals extracted from the file */
     std::vector<Vertex> normals;
 
+    /* Triangulate the hole caused by the deletions of the vertex at the index i
+          i: index of the vertex we want to delete
+          triangles_to_delete_ptr: pointer to the list of triangles that will be
+          delete at the deletion of the vertex*/
+
+    void _fillHoles(int i,std::vector<Triangle> * triangles_to_delete_ptr);
+    /* Delete the vertex at index i and its connected trangles
+          i: index of the vertex
+          triangles_to_delete_i_ptr: pointer to the list of the indexes of the connected triangles
+    */
+    void _deleteVertex(int i, std::vector<int> * triangles_to_delete_i_ptr);
+
   public:
     /* Constructors */
     /* Extract triangles, vertices, normals from the file */
@@ -48,7 +60,7 @@ namespace stl {
     /* Create binary stl file from triangle list */
     void create_stl();
 
-    /* Return a Stl_data with reducted mesh */
-    Stl_data * reducted_mesh();
+    /* Delete one vertex if possile. Return false if not */
+    bool delete_one_vertex();
   };
 }

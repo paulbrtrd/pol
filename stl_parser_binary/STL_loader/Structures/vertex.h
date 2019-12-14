@@ -48,6 +48,12 @@ namespace stl {
     float distance_to_edge (Vertex & v1Edge, Vertex & v2Edge);
     /* Return the number of triangle the vertex has in common with v */
     int nbCommonTriangleWith(Vertex &v);
+
+    /* Remove from the connected_triangles list the triangle index t
+     * if it is inside  */
+    void removeTriangle(int t);
+    /* Decrement the vertices indexes if they are greater than i */
+    void decalTriangles(int i_min);
   };
 
   // Surcharge de == pour les vertex

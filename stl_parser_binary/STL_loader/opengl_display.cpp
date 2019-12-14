@@ -31,7 +31,9 @@ float camPosX = 0;
 float camPosY = 0;
 float camPosZ = 2;
 std::vector<stl::Triangle> triangles_to_display;
-
+stl::Stl_data * info_ptr;
+bool mesh_reduction_wanted=false;
+int reduction_force = 1;
 // Definition de la fonction d'affichage
 GLvoid affichage(){
    // Effacement du frame buffer
@@ -56,12 +58,35 @@ GLvoid affichage(){
    cali_y = y_bary - camPosY;
    cali_z = z_bary;
    // Dessin de chaque triangle
+   if (mesh_reduction_wanted) {
+     int nb_reduction;
+     mesh_reduction_wanted = false;
+     if (reduction_force != 0) {
+       nb_reduction = (reduction_force * 5 * (info_ptr->getvertices())->size()) / 100;
+     }
+     else {
+       nb_reduction = 1;
+     }
+     bool more_candidates = true;
+     for(int i=0;i<nb_reduction;i++) {
+       more_candidates = info_ptr->delete_one_vertex();
+       if (!more_candidates) {
+         std::cout << "No more candidates. " << i << " vertices deleted" << std::endl;
+         break;
+       }
+     }
+     std::cout << "Reduction: " << reduction_force*5 << "% (" << nb_reduction << " vertices)"<< std::endl;
+     std::cout << "Nombre de triangles = " << triangles_to_display.size() << std::endl;
+     std::cout << "Nombre de vertices = " << (info_ptr->getvertices())->size() << std::endl;
+     triangles_to_display = *(info_ptr->gettriangles());
+   }
    for (stl::Triangle t : triangles_to_display) {
       glBegin(GL_TRIANGLES);
       stl::Vertex normal = t.getnormal();
       glNormal3f(normal.getx(), normal.gety(), normal.getz());
       for(int i=1; i<=3; i++) {
          stl::Vertex v = t.getv(i);
+<<<<<<< HEAD
          int index = t.getv_i(i);
          float dist;
          char c = v.vertexType(index, &dist);
@@ -82,6 +107,28 @@ GLvoid affichage(){
              break;
          }
          glColor3f(r,g,b);
+=======
+         //int index = t.getv_i(i);
+         //float dist = 0;
+         //char c = v.vertexType(index, &dist);
+         // float r=0;
+         // float g=0;
+         // float b=0;
+         // switch (c) {
+         //   case 's':
+         //     g=1.0;
+         //     break;
+         //   case 'c':
+         //     r=1.0;
+         //     break;
+         //   case 'b':
+         //     b=1.0;
+         //     break;
+         //   default:
+         //     break;
+         // }
+         // glColor3f(r,g,b);
+>>>>>>> 3da89f0bdaf3bcfe0adf20e4b933b014cd65d85c
          glVertex3f(v.getx() - cali_x, v.gety() - cali_y, v.getz() - cali_z);
       }
       glEnd();
@@ -131,8 +178,55 @@ GLvoid clavier(unsigned char touche, int x, int y) {
             pointSize = 1.0f;
          glPointSize(pointSize);
          break;
-
-
+      case 'r':
+        mesh_reduction_wanted = true;
+        reduction_force = 0;
+        break;
+      case '1':
+        mesh_reduction_wanted = true;
+        reduction_force = 1;
+        break;
+      case '2':
+        mesh_reduction_wanted = true;
+        reduction_force = 2;
+        break;
+      case '3':
+        mesh_reduction_wanted = true;
+        reduction_force =3;
+        break;
+      case '4':
+        mesh_reduction_wanted = true;
+        reduction_force = 4;
+        break;
+      case '5':
+        mesh_reduction_wanted = true;
+        reduction_force = 5;
+        break;
+      case '6':
+        mesh_reduction_wanted = true;
+        reduction_force = 6;
+        break;
+      case '7':
+        mesh_reduction_wanted = true;
+        reduction_force = 7;
+        break;
+      case '8':
+        mesh_reduction_wanted = true;
+        reduction_force = 8;
+        break;
+      case '9':
+        mesh_reduction_wanted = true;
+        reduction_force = 9;
+        break;
+      case '*':
+        mesh_reduction_wanted = true;
+        reduction_force = 10;
+        break;
+      case 'e':
+      case 'E':
+        info_ptr->create_stl();
+        std::cout << "Saved as created_stl.stl" << std::endl;
+        break;
       case 'q' : // quitter
       case 27 :
          exit(0);
@@ -244,9 +338,10 @@ void init_opengl(int argc, char *argv[])
 void opengl_display(stl::Stl_data * ptr_mesh)
 {
    // Update the mesh triangles to display
-   triangles_to_display = *(ptr_mesh->gettriangles());
+   info_ptr = ptr_mesh;
+   triangles_to_display = *(info_ptr->gettriangles());
 
-   std::vector<stl::Vertex> vertices = *(ptr_mesh->getvertices());
+   std::vector<stl::Vertex> vertices = *(info_ptr->getvertices());
    // Compute barycenter of the object
    x_bary=0;
    y_bary=0;
