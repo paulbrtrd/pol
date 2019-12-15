@@ -10,7 +10,6 @@ namespace stl {
   	  v2_i = v2p;
   	  v3_i = v3p;
       data = datap;
-
     }
 
     Triangle::Triangle(Triangle * t) {

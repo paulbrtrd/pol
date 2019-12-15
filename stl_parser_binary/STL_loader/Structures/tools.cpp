@@ -1,5 +1,3 @@
-
-#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <streambuf>
@@ -13,10 +11,9 @@ namespace stl{
     s.read(f_buf, 4);
     float* fptr = (float*) f_buf;
     return *fptr;
-   }
+  }
 
-
-   Vertex parse_vertex(std::ifstream& s) {
+  Vertex parse_vertex(std::ifstream& s) {
     float x = parse_float(s);
     float y = parse_float(s);
     float z = parse_float(s);

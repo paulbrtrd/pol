@@ -1,3 +1,8 @@
+/*
+ * Classe Triangles. Elle stocke les indices des vertices/normales dans l'instance de Stl_data auquelle elle est associée.
+ * La surcharge des opérateur << et == sont écrits ici également.
+ */
+
 #pragma once
 #include "stl_data.h"
 #include "vertex.h"
@@ -27,7 +32,8 @@ namespace stl {
     int getv_i(int i) const;
     int getnormal_i() const { return normal_i; };
 
-    Stl_data * getdata(){return data;};
+    /* Return the Stl_data associated to the triangle */
+    Stl_data * getdata(){ return data; };
 
     /* Return a COPY of the vertex or normal */
     Vertex getv1() const;
@@ -36,8 +42,10 @@ namespace stl {
     Vertex getnormal() const;
     Vertex getv(int i) const;
 
-    /* Return the vector AB^AC normalized, for a triangle ABC */
+    /* Return the vector AB^AC (<=>v1v2^v1v3) normalized,
+     * for a triangle ABC (<=> v1v2v3) */
     Vertex getOrientation();
+
     /* Return the 2 other vertices of the triangle, if first_point is in the triangle.
      * Set -1 to A and B if not.
      */
@@ -52,6 +60,7 @@ namespace stl {
    * L'égalité du data relié au triangle n'est pas testée.
   */
   bool operator==(const Triangle  t1, const Triangle  t2);
+  
   // Surcharge de l'opérateur << pour l'affichage des informations d'un triangle
   std::ostream& operator<<(std::ostream& out, const Triangle& t);
 }

@@ -10,7 +10,7 @@
 #include "vertex.h"
 
 namespace stl {
-  /* Constructor */
+
   Stl_data::Stl_data(const std::string& stl_path) {
 
     // Extract the file
@@ -39,7 +39,7 @@ namespace stl {
       Vertex v2 = parse_vertex(stl_file);
       Vertex v3 = parse_vertex(stl_file);
 
-      // Create or get the index to the normal and the vertices
+      // Create or get the index of the normal and the vertices
       int i_normal = this->get_or_add_normal(normal, i);
       int i_v1 = this->get_or_add_vertex(v1, i);
       int i_v2 = this->get_or_add_vertex(v2, i);
@@ -49,6 +49,7 @@ namespace stl {
       Triangle t(i_normal, i_v1, i_v2, i_v3, this);
       this->addTriangle(t);
 
+      // Triangles are seperated by 2 bytes
       char dummy[2];
       stl_file.read(dummy, 2);
     }
@@ -57,10 +58,10 @@ namespace stl {
   int Stl_data::get_or_add_vertex(Vertex & v, int current_triangle) {
     // Check if the vertex already exists
     for (int i=0; i<vertices.size(); i++){
-      if (v == vertices[i]) {
+      if (v == vertices.at(i)) {
         // Vertex found: add the current triangle to the connected_triangles of the vertex
         // and return the index of the vertex in the list
-        vertices[i].add_connected_triangle(current_triangle);
+        vertices.at(i).add_connected_triangle(current_triangle);
         return i;
       }
     }
@@ -73,6 +74,7 @@ namespace stl {
   }
 
   int Stl_data::get_or_add_normal(Vertex & n, int current_triangle) {
+    // Same process as get_or_add_vertex, but on the normals
     for (int i= 0; i<normals.size(); i++) {
       if (n == normals[i]) {
         normals[i].add_connected_triangle(current_triangle);
@@ -108,7 +110,7 @@ namespace stl {
     char dummy[2];
 
     int i = 0;
-
+    int nb_triangles = triangles.size();
     // Écriture des données
     for (Triangle t: triangles) {
       Vertex normal = t.getnormal();
@@ -129,20 +131,27 @@ namespace stl {
 
       // Décalage de 2 octets entre chaque triangle (voir le constructeur de Stl_data)
       new_file.write(dummy, 2);
-      std::cout << "Triangle " << i+1 << " ajouté" << std::endl;
+      std::cout << "Triangle " << i+1 << "/" << nb_triangles << " ajouté" << std::endl;
       i++;
 
     }
+
+    // Fermeture du fichier
     new_file.close();
   }
 
   void Stl_data::_deleteVertex(int i,std::vector<int> * triangles_to_delete_i_ptr) {
+
+    // Remove the triangles from the connected_triangle list of each vertex
     for(int & t: *triangles_to_delete_i_ptr) {
       for (Vertex & v:vertices) {
         v.removeTriangle(t);
       }
     }
-    int offset = 0;
+
+    // Delete the triangles from the triangle list
+    int offset = 0; // Each time a triangle is deleted, triangle with index
+                    // greater than the deleted triangle lower its index
     int index;
     for(int & t: *triangles_to_delete_i_ptr) {
 
@@ -170,46 +179,50 @@ namespace stl {
   }
 
   void Stl_data::_fillHoles(int i,std::vector<Triangle> * triangles_to_delete_ptr) {
+
+    // Indice du premier triangle qui est ajouté
     int current_triangle = triangles.size();
+
     // Vertex au centre du trou engendré par la suppression (vertex qui sera supprimé)
     Vertex v0 = vertices.at(i);
+
     // Triangle de base (choisi arbitairement)
     Triangle * t_ptr = &triangles_to_delete_ptr->at(0);
 
     int nb_triangle_added = 0;
+
     // Sommets des triangles à construire (stocké sous forma d'indices)
     int A = -1;
     int B = -1;
     int C = -1;
 
     // Extraction des deux sommets extérieurs au cycle formé
-    // par le trou que la suppression de triangles engendre
+    // par le trou que la suppression de premier triangles engendre
     t_ptr->getLastVertices(i, &A, &B);
+    // v1 = sommet commun à tous les triangles ajoutés
     Vertex v1 = vertices.at(A);
 
     for (int t=1; t<triangles_to_delete_ptr->size(); t++) {
       t_ptr = &triangles_to_delete_ptr->at(t);
       t_ptr->getLastVertices(i, &B, &C);
-      if (B != A && C != A)
+      if (B != A && C != A)   // Si le triangle en cours n'est pas le triangle de base
       {
-        // Si le triangle en cours n'est pas le triangle de base
+        // Choix des deux derniers sommets du triangle que nous ajoutons
         Vertex v2 = vertices.at(B);
         Vertex v3 = vertices.at(C);
 
         Vertex AB = v1.vectorTo(v2);
         Vertex AC = v1.vectorTo(v3);
 
+        // Calcul de l'orientation du triangle que nous voulons ajouter
         Vertex normal = AB.crossProduct(AC);
         normal.normalize();
-        Vertex crossprod = AB.crossProduct(AC);
-        // L'orientation du triangle est nécessaire au choix de l'ordre des
-        // points A, B et C lors de la création du nouveau triangle
+        // Extraction de l'orientation du triangle initial (qui sera supprimé)
         Vertex triangle_orientation = t_ptr->getOrientation();
 
-        if(triangle_orientation.dot(crossprod) < 0)
+        if(triangle_orientation.dot(normal) < 0) // Si les deux orientation ne sont pas dans le même sens
         {
-          // Si le nouveau triangle ABC n'est pas orienté pareil
-          // que le triangle original, on inverse B et C, et le sens de la normale.
+          // On inverse B et C et le sens de la normale
           v2 = vertices.at(C);
           v3 = vertices.at(B);
           normal.invert();
@@ -231,16 +244,48 @@ namespace stl {
 
   bool Stl_data::delete_one_vertex()
   {
-    int best_candidate = -1;
-    float best_distance = 0.1;
+    /* Recherche du meilleur candidat pour la suppression */
+    int best_candidate_simple = -1;
+    float best_distance_simple = 0.1;
+    int best_candidate_boundary = -1;
+    float best_distance_boundary = 0.1;
+
+    // Parcours des vertices
     for(int i=0; i< vertices.size();i++) {
-      float dist = 0;
+      float dist;
       char vertex_type = vertices.at(i).vertexType(i, &dist);
-      if ( (vertex_type=='s') && (dist < best_distance) ) {
-        best_candidate = i;
-        best_distance = dist;
+      // Si le vertex est simple et vérifie le critère de distance, il est candidat
+      // Le meilleur candidat est celui avec la distance la plus faible
+      if ( (vertex_type=='s') && (dist < best_distance_simple) ) {
+        best_candidate_simple = i;
+        best_distance_simple = dist;
+        if (dist == 0) {
+          break;
+        }
+      }
+      // Si le vertex est boundary et vérifie le critère de distance, il est candidat
+      // Le meilleur candidat est celui avec la distance la plus faible
+      else if ( (vertex_type=='b') && (dist < best_distance_boundary) ) {
+        best_candidate_boundary = i;
+        best_distance_boundary = dist;
+        if (dist == 0) {
+          break;
+        }
       }
     }
+
+    int best_candidate = -1;
+    float best_distance = 0;
+    if (best_candidate_simple != -1) {  // On privilégie le candidat simple
+      best_candidate = best_candidate_simple;
+      std::cout << "Deleting simple vertex (distance: " << best_distance_simple << ")" << std::endl;
+    }
+    else if (best_candidate_boundary != -1){
+      best_candidate = best_candidate_boundary;
+      std::cout << "Deleting boundary vertex (distance: " << best_distance_boundary << ")" << std::endl;
+    }
+
+    /* Suppression du vertex candidat */
 
     if (best_candidate != -1)
     {
@@ -251,9 +296,10 @@ namespace stl {
       for(int & j: triangles_to_delete_i) {
         triangles_to_delete.push_back(triangles.at(j));
       }
+
       /* Retriangulation */
       _fillHoles(best_candidate, &triangles_to_delete);
-      /* Deletion of the vertex */
+      /* Suppression du vertex */
       _deleteVertex(best_candidate, &triangles_to_delete_i);
       return true;
     }

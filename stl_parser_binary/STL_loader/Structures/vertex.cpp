@@ -4,6 +4,7 @@
 #include <algorithm>
 
 namespace stl {
+
   void Vertex::normalize() {
     float norm = this->norm();
     x/=norm;
@@ -11,13 +12,15 @@ namespace stl {
     z/=norm;
   }
 
-
-
   int Vertex::nbCommonTriangleWith(Vertex &v) {
     int result = 0;
     std::vector<int> v_triangles = v.get_connected_triangle();
+
+    /* Browse the triangles connected to the current vertex */
     for(int & t1:connected_triangles) {
+      /* Browse the triangles connected to the vertex v */
       for(int & t2: v_triangles) {
+        /* If v and the current triangle have the same connected triangle index */
         if (t1 == t2) {
           result++;
         }
@@ -32,42 +35,58 @@ namespace stl {
     return dist;
   }
 
-  float Vertex::distance_to_edge (Vertex & v1Edge, Vertex & v2Edge){
-      stl::Vertex vect_directeur = v1Edge.vectorTo(v2Edge);
-      stl::Vertex vect_v_v1Edge = v1Edge.vectorTo(*this);
-      stl::Vertex vect_cross_prod = vect_directeur.crossProduct(vect_v_v1Edge);
-      float norm_vect_directeur = vect_directeur.norm();
-      float norm_vect_cross_prod = vect_cross_prod.norm();
-      return norm_vect_cross_prod/norm_vect_directeur;
+  float Vertex::distance_to_edge(Vertex & v1Edge, Vertex & v2Edge){
+    /* Distance from vertex A to line (BC) can be computed
+     * with: dist = norm(BC^BA)/norm(BC)
+     * here: A = current vertex, B=v1Edge, C=v2Edge
+     */
+      Vertex BC = v1Edge.vectorTo(v2Edge);
+      Vertex BA = v1Edge.vectorTo(*this);
+      Vertex BCvBA = BC.crossProduct(BA);
+      float norm_BC = BC.norm();
+      float norm_BCvBA = BCvBA.norm();
+
+      return norm_BCvBA/norm_BC;
   }
 
   char Vertex::vertexType(int vertex_index, float *dist) {
+    // By default, the vertex_type is simple and the distance is -1
     char vertex_type = 's';
-    *dist = 0;
+    *dist = -1;
+
+    /* Variable used to compute the distance from the vertex to the average
+     * point of its connected vertices */
     float xm = 0;
     float ym = 0;
     float zm = 0;
     int nb_vertices = 0;
-    std::vector<stl::Triangle> connected_triang;
-    // create connected_triangles vector with Triangle objects
-    for (int & i: connected_triangles){
-      stl::Triangle t((data->gettriangles())->at(i));
-      connected_triang.push_back(t);
-    }
-    /* Variables to store the bounds of the cycle */
+
+    /* Variables used to store the bounds of the cycle */
     int first_bound = -1;
     int second_bound = -1;
+    Vertex bound_1;
+    Vertex bound_2;
+
     // Analyse each connected triangle
-    for (stl::Triangle t:connected_triang){
-      int i1, i2; // Indexes of the 2 other vertices of the connected triangle
+    for (int & i: connected_triangles){
+      // Extract the current triangle
+      Triangle t((data->gettriangles())->at(i));
+
+      // Extract the 2 other vertices of the connected triangle
+      int i1, i2;
       t.getLastVertices(vertex_index, &i1, &i2);
       if (i1==-1 || i2==-1) {
         std::cout << "ERREUR: getLastVertices a échoué pour le vertex " << vertex_index << "sur le triangle " << t << std::endl;
       }
       Vertex v1 = (data->getvertices())->at(i1);
       Vertex v2 = (data->getvertices())->at(i2);
+
+      /* Compute the number of triangle that the current vertex has in common
+       * with the other vertices */
       int nb_common_triangles_v1 = this->nbCommonTriangleWith(v1);
       int nb_common_triangles_v2 = this->nbCommonTriangleWith(v2);
+
+      /* Update the average point coordinates */
       xm += v1.getx();
       ym += v1.gety();
       zm += v1.getz();
@@ -102,13 +121,12 @@ namespace stl {
         if( (nb_common_triangles_v1 == 1) && (nb_common_triangles_v2 == 2) ) {
           // v1 is a bound
           if(first_bound == -1) {
+            bound_1 = v1;
             first_bound = i1;
           }
           else if (second_bound == -1) {
+            bound_2 = v2;
             second_bound = i1;
-          }
-          else {
-            std::cout << "ERROR1: 3 bounds found for " << *this << std::endl;
           }
           continue;
         }
@@ -120,25 +138,24 @@ namespace stl {
           else if (second_bound == -1) {
             second_bound = i2;
           }
-          else {
-            std::cout << "ERROR2: 3 bounds found for " << *this << std::endl;
-          }
           continue;
         }
       }
     }
+
     /* Check wether the vertex is a boundary */
     if (second_bound != -1){
       // 2 bounds found --> boundary vertex
       vertex_type = 'b';
-      *dist= this->distance_to_edge((data->getvertices())->at(first_bound),(data->getvertices())->at(second_bound));
+      *dist= distance_to_edge(bound_1, bound_2);
     }
     else if (first_bound != -1) {
       // Only one bound found --> complex vertex
-      std::cout << "Only one bound found for " << *this << std::endl;
       vertex_type = 'c';
     }
     else {
+      /* Simple vertex. Finalize the computation of the average point and
+       * compute the distance from the current vertex to this point */
       xm/=nb_vertices;
       ym/=nb_vertices;
       zm/=nb_vertices;
@@ -149,7 +166,10 @@ namespace stl {
   }
 
   void Vertex::removeTriangle(int t) {
+    // Look for the triangle index in the connected_triangle list */
     std::vector<int>::iterator it = std::find(connected_triangles.begin(), connected_triangles.end(), t);
+
+    // If the triangle index is found, remove it from the list
     if (it != connected_triangles.end()) {
       connected_triangles.erase(it);
     }

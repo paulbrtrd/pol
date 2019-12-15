@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
         nb_boundary_candidates = 0;
         for (int j=0; j<vertices.size(); j++) {
           stl::Vertex v = vertices.at(j);
-          float dist = 0;
+          float dist;
           char vertex_type = v.vertexType(j, &dist);
           if ( vertex_type == 's' && dist < 0.1) {
             nb_simple_candidates++;
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
 
         for (int j=0; j<vertices.size(); j++) {
           stl::Vertex v = vertices.at(j);
-          float dist = 0;
+          float dist;
           char vertex_type = v.vertexType(j, &dist);
           // Affichage du vertex
           std::cout << v << " (" << vertex_type << ")" << std::endl;
@@ -116,9 +116,9 @@ int main(int argc, char* argv[]) {
           }
         }
         // Affichage du résultat du décompte
-        std::cout << nb_boundary_vertices << "boundary vertices. "<< nb_boundary_candidates << " candidats pour être supprimés" << std::endl;
-        std::cout << nb_simple_vertices << "simple vertices. "<< nb_simple_candidates << " candidats pour être supprimés" << std::endl;
-        std::cout << nb_complex_vertices << "complex vertices. "<< 0 << " candidats pour être supprimés" << std::endl;
+        std::cout << nb_boundary_vertices << " boundary vertices. "<< nb_boundary_candidates << " candidats pour être supprimés" << std::endl;
+        std::cout << nb_simple_vertices << " simple vertices. "<< nb_simple_candidates << " candidats pour être supprimés" << std::endl;
+        std::cout << nb_complex_vertices << " complex vertices. "<< 0 << " candidats pour être supprimés" << std::endl;
         break;
       case '3': /* Affichage de la liste des normales */
         std::cout << "\nListe des normales:\n";
