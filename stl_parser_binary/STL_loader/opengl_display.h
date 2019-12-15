@@ -1,12 +1,10 @@
+/* Code inspiré du TP2 de IMAGRV */
+
 #pragma once
 
 #ifdef __WINDOWS__
 #include <Windows.h>
 #endif
-
-#include "Structures/stl_data.h"
-
-
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
@@ -16,14 +14,16 @@
 #include <GL/glut.h>
 #endif
 
+#include "Structures/stl_data.h"
 
-
-
+// Initiation of glut
 void init_opengl(int argc, char *argv[]);
+
+// Window creation and definition of the callbacks
 void opengl_display (stl::Stl_data * ptr_mesh);
 
-// Déclarations des fonctions de rappel (callbacks)
-GLvoid affichage();
+/* Callbacks */
+GLvoid display();
 GLvoid clavier(unsigned char touche, int x, int y);
 GLvoid releaseSpecialKey(int key, int x, int y);
 GLvoid souris(int bouton, int etat, int x, int y);
