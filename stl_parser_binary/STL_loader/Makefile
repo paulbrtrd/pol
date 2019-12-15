@@ -2,9 +2,9 @@
 all: end
 
 
-myApp: main.o stl_data.o triangle.o vertex.o tools.o opengl_display.o ClassifyVertex.o
+myApp: main.o stl_data.o triangle.o vertex.o tools.o opengl_display.o
 	@if [ -e myApp ];  then rm myApp; fi
-	@g++ -o myApp main.o stl_data.o triangle.o vertex.o tools.o opengl_display.o ClassifyVertex.o -lglut -lGLU -lGL
+	@g++ -o myApp main.o stl_data.o triangle.o vertex.o tools.o opengl_display.o  -lglut -lGLU -lGL
 	@echo "myApp generated"
 
 main.o: main.cpp
@@ -26,10 +26,6 @@ vertex.o: Structures/vertex.cpp Structures/vertex.h Structures/stl_data.h
 tools.o: Structures/tools.cpp Structures/tools.h Structures/vertex.h
 	@g++ -c Structures/tools.cpp
 	@echo "tools.o generated"
-
-ClassifyVertex.o: ClassifyVertex.cpp ClassifyVertex.h Structures/vertex.h
-	@g++ -c ClassifyVertex.cpp
-	@echo "ClassifyVertex.o generated"
 
 opengl_display.o: opengl_display.cpp opengl_display.h
 	@g++ -c opengl_display.cpp

@@ -1,5 +1,4 @@
 
-#include "ClassifyVertex.h"
 #include <algorithm>
 #include <iostream>
 #include <math.h>
@@ -92,42 +91,32 @@ bool vertex_criteria(stl::Vertex v, char type, float dist_critere){
       }
       d= distance_vertices(average_vertex,v);
 
-<<<<<<< HEAD
-      std::cout<< " distance : "<< d <<std::endl;
-
-      if (d<dist_critere){
-        return true;
-      }
-      else{
-        return false;
-      }
-=======
-  if (d<dist_critere){
-    return true;
->>>>>>> 3da89f0bdaf3bcfe0adf20e4b933b014cd65d85c
+    if (d<dist_critere){
+      return true;
+    }
   }
   if (type =='b'){
-      int nb_common_triangles;
-      std::vector<stl::Vertex> bounds;
-      for ( stl::Vertex & v_cour : list_vertices){
-          nb_common_triangles = v.nbCommonTriangleWith(v_cour);
-          if (nb_common_triangles==1){
-              bounds.push_back(v_cour);
-          }
-      }
-      d = distance_to_edge(v,bounds.at(0),bounds.at(1));
+    int nb_common_triangles;
+    std::vector<stl::Vertex> bounds;
+    for ( stl::Vertex & v_cour : list_vertices){
+        nb_common_triangles = v.nbCommonTriangleWith(v_cour);
+        if (nb_common_triangles==1){
+            bounds.push_back(v_cour);
+        }
+    }
+    d = distance_to_edge(v,bounds.at(0),bounds.at(1));
 
-      std::cout << " edge vertex 1 : "<<bounds.at(0)<<std::endl;
-      std::cout << " edge vertex 2 : "<<bounds.at(1)<<std::endl;
+    std::cout << " edge vertex 1 : "<<bounds.at(0)<<std::endl;
+    std::cout << " edge vertex 2 : "<<bounds.at(1)<<std::endl;
 
-      std::cout<< " distance : "<< d <<std::endl;
+    std::cout<< " distance : "<< d <<std::endl;
 
-      if (d<dist_critere){
-        return true;
-      }
-      else{
-        return false;
-      }
+    if (d<dist_critere){
+      return true;
+    }
+    else{
+      return false;
+    }
   }
   return false;
 

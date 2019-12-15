@@ -8,7 +8,6 @@
 #include "stl_data.h"
 #include "triangle.h"
 #include "vertex.h"
-#include "../ClassifyVertex.h"
 
 namespace stl {
   /* Constructor */
@@ -163,7 +162,7 @@ namespace stl {
       offset++;
     }
 
-    //Once the triangles deleted, delete the vertexType
+    //Once the triangles deleted, delete the vertex
     vertices.erase(vertices.begin() + i);
     for(Triangle & t: triangles) {
       t.decalVertices(i);

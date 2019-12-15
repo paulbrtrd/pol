@@ -40,6 +40,7 @@ namespace stl {
       float norm_vect_cross_prod = vect_cross_prod.norm();
       return norm_vect_cross_prod/norm_vect_directeur;
   }
+
   char Vertex::vertexType(int vertex_index, float *dist) {
     char vertex_type = 's';
     *dist = 0;

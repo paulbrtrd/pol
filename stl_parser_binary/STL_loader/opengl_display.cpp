@@ -57,12 +57,20 @@ GLvoid affichage(){
    cali_x = x_bary - camPosX;
    cali_y = y_bary - camPosY;
    cali_z = z_bary;
-   // Dessin de chaque triangle
+
+   /* if the user chose to reduct the mesh */
    if (mesh_reduction_wanted) {
      int nb_reduction;
      mesh_reduction_wanted = false;
+
+     /* Compute the number of vertices to delete */
      if (reduction_force != 0) {
-       nb_reduction = (reduction_force * 5 * (info_ptr->getvertices())->size()) / 100;
+       if (reduction_force == 10) {
+         nb_reduction = (info_ptr->getvertices())->size();
+       }
+       else {
+         nb_reduction = (reduction_force * 5 * (info_ptr->getvertices())->size()) / 100;
+       }
      }
      else {
        nb_reduction = 1;
@@ -70,6 +78,7 @@ GLvoid affichage(){
      bool more_candidates = true;
      for(int i=0;i<nb_reduction;i++) {
        more_candidates = info_ptr->delete_one_vertex();
+       std::cout << "Reduction ... (" << 100*i/nb_reduction << "%)" << std::endl;
        if (!more_candidates) {
          std::cout << "No more candidates. " << i << " vertices deleted" << std::endl;
          break;
@@ -80,55 +89,14 @@ GLvoid affichage(){
      std::cout << "Nombre de vertices = " << (info_ptr->getvertices())->size() << std::endl;
      triangles_to_display = *(info_ptr->gettriangles());
    }
+
+   /* Display the triangles */
    for (stl::Triangle t : triangles_to_display) {
       glBegin(GL_TRIANGLES);
       stl::Vertex normal = t.getnormal();
       glNormal3f(normal.getx(), normal.gety(), normal.getz());
       for(int i=1; i<=3; i++) {
          stl::Vertex v = t.getv(i);
-<<<<<<< HEAD
-         int index = t.getv_i(i);
-         float dist;
-         char c = v.vertexType(index, &dist);
-         float r=0;
-         float g=0;
-         float b=0;
-         switch (c) {
-           case 's':
-             g=1.0;
-             break;
-           case 'c':
-             r=1.0;
-             break;
-           case 'b':
-             b=1.0;
-             break;
-           default:
-             break;
-         }
-         glColor3f(r,g,b);
-=======
-         //int index = t.getv_i(i);
-         //float dist = 0;
-         //char c = v.vertexType(index, &dist);
-         // float r=0;
-         // float g=0;
-         // float b=0;
-         // switch (c) {
-         //   case 's':
-         //     g=1.0;
-         //     break;
-         //   case 'c':
-         //     r=1.0;
-         //     break;
-         //   case 'b':
-         //     b=1.0;
-         //     break;
-         //   default:
-         //     break;
-         // }
-         // glColor3f(r,g,b);
->>>>>>> 3da89f0bdaf3bcfe0adf20e4b933b014cd65d85c
          glVertex3f(v.getx() - cali_x, v.gety() - cali_y, v.getz() - cali_z);
       }
       glEnd();
@@ -155,17 +123,6 @@ GLvoid clavier(unsigned char touche, int x, int y) {
       case 's' : // sommets du carre
          glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
          break;
-
-         // Gestion du tampon de profondeur
-      case 'd' :
-         // TODO : activer le test du tampon de profondeur
-         glutPostRedisplay();
-         break;
-      case 'D' :
-         //TODO : desactiver le test du tampon de profondeur
-         glutPostRedisplay();
-         break;
-
       case '+':
          // Augmenter la taille des sommets affiches
          pointSize+=1.0f;
@@ -178,56 +135,62 @@ GLvoid clavier(unsigned char touche, int x, int y) {
             pointSize = 1.0f;
          glPointSize(pointSize);
          break;
+
+         /* Mesh reduction */
       case 'r':
         mesh_reduction_wanted = true;
-        reduction_force = 0;
+        reduction_force = 0;  // 1 vertex will be deleted
         break;
       case '1':
         mesh_reduction_wanted = true;
-        reduction_force = 1;
+        reduction_force = 1;  // 5% of the vertices will be deleted
         break;
       case '2':
         mesh_reduction_wanted = true;
-        reduction_force = 2;
+        reduction_force = 2;  // 10% of the vertices will be deleted
         break;
       case '3':
         mesh_reduction_wanted = true;
-        reduction_force =3;
+        reduction_force =3;  // 15% of the vertices will be deleted
         break;
       case '4':
         mesh_reduction_wanted = true;
-        reduction_force = 4;
+        reduction_force = 4;  // 20% of the vertices will be deleted
         break;
       case '5':
         mesh_reduction_wanted = true;
-        reduction_force = 5;
+        reduction_force = 5;  // 25% of the vertices will be deleted
         break;
       case '6':
         mesh_reduction_wanted = true;
-        reduction_force = 6;
+        reduction_force = 6;  // 30% of the vertices will be deleted
         break;
       case '7':
         mesh_reduction_wanted = true;
-        reduction_force = 7;
+        reduction_force = 7;  // 35% of the vertices will be deleted
         break;
       case '8':
         mesh_reduction_wanted = true;
-        reduction_force = 8;
+        reduction_force = 8;  // 40% of the vertices will be deleted
         break;
       case '9':
         mesh_reduction_wanted = true;
-        reduction_force = 9;
+        reduction_force = 9;  // 45% of the vertices will be deleted
         break;
       case '*':
         mesh_reduction_wanted = true;
-        reduction_force = 10;
+        reduction_force = 10;  // Every candidate vertex will be deleted
         break;
+
+        /* Creation of e stl file */
       case 'e':
       case 'E':
         info_ptr->create_stl();
         std::cout << "Saved as created_stl.stl" << std::endl;
         break;
-      case 'q' : // quitter
+
+        /* Exit */
+      case 'q' :
       case 27 :
          exit(0);
          break;
@@ -320,7 +283,6 @@ GLvoid redimensionner(int w, int h) {
    glViewport(0, 0, windowW, windowH);
 
    // Mise en place de la perspective
-   // TODO : peut-on changerle ratio ici pour un meilleur resultat ?
    gluPerspective(focale, 4/3.0, near, far);
 
    // Placement de la caméra
