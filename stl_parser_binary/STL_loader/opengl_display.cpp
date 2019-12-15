@@ -255,15 +255,8 @@ GLvoid releaseSpecialKey(int key, int x, int y) {
       camPosZ += step;
       somethingChanged = true;
       break;
-    case GLUT_KEY_RIGHT :
-      camPosX += step;
-      somethingChanged = true;
+    default:
       break;
-    case GLUT_KEY_LEFT :
-      camPosX -= step;
-      somethingChanged = true;
-      break;
-    break;
   }
 
   // Demande a GLUT de reafficher la scene
