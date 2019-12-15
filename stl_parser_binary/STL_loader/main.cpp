@@ -40,6 +40,9 @@ int main(int argc, char* argv[]) {
   int nb_simple_candidates = 0;
   int nb_boundary_candidates = 0;
 
+  // Variable pour l'application de l'algorithme de réduction
+  bool vertex_deleted = false;
+
   while(true) {
     std::cout << "Que voulez-vous faire?\n" <<
                   "1. Afficher les informations du fichier\n" <<
@@ -84,7 +87,7 @@ int main(int argc, char* argv[]) {
         nb_boundary_candidates = 0;
 
 
-        for (int j=0; j<vertices/size(); j++) {
+        for (int j=0; j<vertices.size(); j++) {
           stl::Vertex v = vertices.at(j);
           float dist = 0;
           char vertex_type = v.vertexType(j, &dist);
@@ -127,8 +130,6 @@ int main(int argc, char* argv[]) {
         std::cout << "\nListe des triangles:\n";
         for (stl::Triangle t : triangles) {
           std::cout << t << std::endl;
-          c = (t.getv1_i());
-          std::cout << c << std::endl;
         }
         break;
       case '5': /* Affichage de l'objet avec openGL */
@@ -145,10 +146,19 @@ int main(int argc, char* argv[]) {
         break;
       case '7': /* Application de l'algorithme pour supprimer le vertex
                  * qui correspond le plus au critère de suppression */
-        info_ptr->delete_one_vertex();
+        vertex_deleted = info_ptr->delete_one_vertex();
+        if (vertex_deleted) {
+          std::cout << "Vertex deleted" << std::endl;
+        }
+        else {
+          std::cout << "No candidate ==> no vertex deleted" << std::endl;
+        }
         triangles = *(info_ptr->gettriangles());
         vertices = *(info_ptr->getvertices());
         normals = *(info_ptr->getnormals());
+        /* Affichage des nouvelles informations */
+        std::cout << "Nombre de triangles = " << triangles.size() << std::endl;
+        std::cout << "Nombre de vertices = " << vertices.size() << std::endl;
         break;
 
       case '0': /* Quitter l'application */
