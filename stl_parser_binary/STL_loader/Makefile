@@ -2,10 +2,10 @@
 all: end
 
 
-myApp: main.o stl_data.o triangle.o vertex.o tools.o opengl_display.o
-	@if [ -e myApp ];  then rm myApp; fi
-	@g++ -o myApp main.o stl_data.o triangle.o vertex.o tools.o opengl_display.o  -lglut -lGLU -lGL
-	@echo "myApp generated"
+MeshReductor: main.o stl_data.o triangle.o vertex.o tools.o opengl_display.o
+	@if [ -e MeshReductor ];  then rm MeshReductor; fi
+	@g++ -o MeshReductor main.o stl_data.o triangle.o vertex.o tools.o opengl_display.o  -lglut -lGLU -lGL
+	@echo "MeshReductor generated"
 
 main.o: main.cpp
 	@g++ -c main.cpp
@@ -31,7 +31,7 @@ opengl_display.o: opengl_display.cpp opengl_display.h
 	@g++ -c opengl_display.cpp
 	@echo "opengl_display.o generated"
 
-end: myApp
+end: MeshReductor
 	@if [ -e Build ];  then rm -r Build; fi
 	@mkdir Build
 	@mv *.o Build/
