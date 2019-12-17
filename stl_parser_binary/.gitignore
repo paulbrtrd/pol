@@ -1,5 +1,6 @@
 *~
 *.o
+MeshReductor
 myApp
 created_file*
 *.blend

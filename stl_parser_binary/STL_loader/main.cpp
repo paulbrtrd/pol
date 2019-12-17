@@ -6,7 +6,7 @@
 #include "Structures/triangle.h"
 
 #include "opengl_display.h"
-
+#include "Structures/tools.h"
 int main(int argc, char* argv[]) {
   // Fichier par défaut: un cube de 8 vertices et 12 triangles
   std::string stl_file_name = "Box1x1x1.stl";
@@ -15,7 +15,12 @@ int main(int argc, char* argv[]) {
   if (argc == 2) {
     stl_file_name = argv[1];
   } else if (argc > 2) {
-    std::cout << "ERROR: Too many command line arguments" << std::endl;
+    std::cout << "ERREUR: Trop d'arguments fournis. 1 seul argument attendu" << std::endl;
+  }
+
+  if (!stl::is_binary_stl(stl_file_name)) {
+    std::cout << "ERROR: File is not a binary stl but ASCII. Please convert it." << std::endl;
+    stl_file_name = "Box1x1x1.stl";
   }
 
   // Extraction des données depuis le fichier stl

@@ -44,4 +44,32 @@ namespace stl{
       j++;
     }
   }
+
+  bool is_binary_stl( std::string & stl_file_name) {
+    std::ifstream stl_file(stl_file_name.c_str(), std::ios::in | std::ios::binary);
+    std::string line;
+    std::string word;
+    std::getline(stl_file, line);
+
+    int i = 0;
+    while (line[i] == ' ') {
+      i++;
+    }
+
+    int j = i;
+
+    while (line[j] != ' ' && j < line.size() ) {
+      j++;
+    }
+
+    if (j == line.size())
+      j--;
+
+    word = line.substr(i,j-i);
+
+    if (word == "solid") {
+      return false;
+    }
+    return true;
+  }
 }
